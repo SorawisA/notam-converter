@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOTAM Coord Converter — Thai AirAsia Dispatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --surface2: #f4f6f9;
+    --border: #dde2ea;
+    --border2: #c4cdd8;
+    --accent: #d13b18;
+    --accent2: #e85a30;
+    --text: #1a2230;
+    --text2: #4a5a70;
+    --text3: #8a9ab0;
+    --green: #0a7a45;
+    --green-dim: #e6f7ef;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    gap: 1rem;
+  }
+  .logo-block { display: flex; align-items: center; gap: 12px; }
+  .logo-mark {
+    width: 42px; height: 42px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: #fff;
+    letter-spacing: -1px; flex-shrink: 0;
+  }
+  .logo-text h1 {
+    font-size: 18px; font-weight: 700; letter-spacing: -0.3px;
+    color: var(--text);
+  }
+  .logo-text p {
+    font-size: 11px; color: var(--text3); letter-spacing: 1px;
+    text-transform: uppercase; margin-top: 2px; font-family: var(--mono);
+  }
+  /* TABS */
+  .tabs {
+    display: flex; gap: 2px; margin-bottom: 1.5rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 4px;
+    width: fit-content;
+  }
+  .tab {
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    padding: 7px 18px; border-radius: 5px; cursor: pointer;
+    border: none; color: var(--text2); background: transparent;
+    transition: all 0.15s; letter-spacing: 0.3px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
+
+  /* PANEL */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* INPUT SECTION */
+  .field-label {
+    font-family: var(--mono); font-size: 11px; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .field-label::before {
+    content: ''; display: block; width: 4px; height: 4px;
+    background: var(--accent); border-radius: 50%;
+  }
+
+  textarea {
+    width: 100%; min-height: 180px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text);
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.8;
+    padding: 14px 16px; resize: vertical;
+    transition: border-color 0.2s;
+    outline: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+  }
+  textarea:focus { border-color: var(--border2); }
+  textarea::placeholder { color: var(--text3); }
+
+  /* BUTTON ROW */
+  .btn-row { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+
+  .btn {
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    padding: 9px 20px; border-radius: 7px; cursor: pointer;
+    border: 1px solid var(--border2); background: var(--surface2);
+    color: var(--text2); transition: all 0.15s; letter-spacing: 0.3px;
+  }
+  .btn:hover { color: var(--text); border-color: var(--accent); }
+
+  .btn-primary {
+    background: var(--accent); color: #fff; border-color: var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
+
+  .btn-copy { position: relative; }
+  .btn-copy.copied { color: var(--green); border-color: var(--green); }
+
+  /* OUTPUT */
+  .out-wrapper {
+    position: relative; margin-top: 4px;
+  }
+  .out-box {
+    width: 100%; min-height: 120px;
+    background: var(--green-dim);
+    border: 1px solid #b2dfc9;
+    border-radius: 8px;
+    font-family: var(--mono); font-size: 13px; line-height: 2.2;
+    color: var(--green); padding: 14px 16px;
+    white-space: pre; overflow-x: auto;
+    letter-spacing: 0.5px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .out-box.empty { color: var(--text3); font-size: 12px; background: var(--surface2); border-color: var(--border); }
+
+  .out-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 8px;
+  }
+  .stat { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+  .stat span { color: var(--green); }
+
+  .error-line {
+    font-family: var(--mono); font-size: 11px; color: #a02800;
+    margin-top: 6px; padding: 8px 12px;
+    background: rgba(209,59,24,0.07); border-radius: 6px;
+    border-left: 2px solid var(--accent);
+    display: none;
+  }
+
+  /* EXAMPLES TAB */
+  .ex-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+  .ex-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; cursor: pointer;
+    transition: border-color 0.15s; text-align: left;
+  }
+  .ex-card:hover, .ex-card.active { border-color: var(--accent); }
+  .ex-card .flag { font-size: 18px; margin-bottom: 4px; display: block; }
+  .ex-card .name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .ex-card .desc { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+  .preview-wrap { margin-top: 4px; }
+  .preview-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; font-family: var(--mono); font-size: 11.5px;
+    color: var(--text2); padding: 14px 16px; min-height: 120px;
+    white-space: pre-wrap; line-height: 1.7; overflow-x: auto;
+  }
+
+  /* FORMAT REFERENCE TAB */
+  .fmt-table { width: 100%; border-collapse: collapse; }
+  .fmt-table th {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--text3); padding: 8px 12px;
+    text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .fmt-table td {
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    font-size: 13px; vertical-align: middle;
+  }
+  .fmt-table tr:last-child td { border-bottom: none; }
+  .fmt-table tr:hover td { background: var(--surface2); }
+  .tag {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    padding: 2px 7px; border-radius: 4px; background: rgba(209,59,24,0.1);
+    color: var(--accent); border: 1px solid rgba(209,59,24,0.25);
+    font-weight: 600;
+  }
+  .code { font-family: var(--mono); font-size: 12px; color: var(--green); font-weight: 600; }
+  .country-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .ctag {
+    font-size: 10px; padding: 2px 6px; border-radius: 4px;
+    background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
+  }
+
+  .rule-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 1.5rem;
+    font-family: var(--mono); font-size: 12px; line-height: 2;
+    color: var(--text2);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .rule-box .hl { color: var(--accent); font-weight: 600; }
+  .rule-box .val { color: var(--green); font-weight: 600; }
+
+  /* divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  /* responsive */
+  @media (max-width: 580px) {
+    .ex-grid { grid-template-columns: 1fr; }
+    header { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="logo-block">
+      <div class="logo-mark">N↗</div>
+      <div class="logo-text">
+        <h1>NOTAM Coord Converter</h1>
+        <p>Thai AirAsia Dispatch Tool</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('convert')">Convert</button>
+    <button class="tab" onclick="switchTab('examples')">Examples</button>
+    <button class="tab" onclick="switchTab('formats')">Format Ref</button>
+  </div>
+
+  <!-- ── CONVERT ── -->
+  <div class="panel active" id="panel-convert">
+    <div class="field-label">NOTAM Input</div>
+    <textarea id="inp" placeholder="Paste full NOTAM text here — any coordinate format supported&#10;&#10;Example:&#10;245400N 1225500E&#10;225454N 1192529E&#10;N3200.0E11800.0"></textarea>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doConvert()">Convert →</button>
+      <button class="btn btn-copy" id="btnCopy" onclick="doCopy()">Copy Output</button>
+      <button class="btn" onclick="doClear()">Clear</button>
+    </div>
+
+    <div class="field-label">Navblue Output</div>
+    <div class="out-box empty" id="out">Awaiting input...</div>
+    <div class="out-footer">
+      <div class="stat" id="stat"></div>
+    </div>
+    <div class="error-line" id="errLine"></div>
+  </div>
+
+  <!-- ── EXAMPLES ── -->
+  <div class="panel" id="panel-examples">
+    <div class="ex-grid" id="exGrid"></div>
+    <div class="field-label">Preview</div>
+    <div class="preview-wrap">
+      <div class="preview-box" id="exPreview">Select a country above...</div>
+    </div>
+    <div class="btn-row" style="margin-top:12px;">
+      <button class="btn btn-primary" onclick="loadToConvert()">Load & Convert →</button>
+    </div>
+  </div>
+
+  <!-- ── FORMAT REFERENCE ── -->
+  <div class="panel" id="panel-formats">
+    <div class="rule-box">
+      <span class="hl">Navblue Rule:</span>
+      LAT = <span class="val">DDMMS</span> + N/S (5 digits) ·
+      LON = <span class="val">DDDMMS</span> + E/W (6 digits)<br>
+      <span class="hl">S</span> = Math.floor(seconds ÷ 10) → 54″ = <span class="val">5</span> · 29″ = <span class="val">2</span> · 00″ = <span class="val">0</span>
+    </div>
+
+    <table class="fmt-table">
+      <thead>
+        <tr>
+          <th>Tag</th>
+          <th>Format</th>
+          <th>Example</th>
+          <th>Countries</th>
+        </tr>
+      </thead>
+      <tbody id="fmtBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+const EXAMPLES = [
+  { flag:'🇹🇭', name:'Thailand', fir:'VTBB FIR', desc:'DDMMSS spaced — GUN FRNG', text:`MAY 01 04-08 11-15 18-22 25-29 0000-0900\n GUN FRNG:\n 1.AIRSPACE BLOCKED.\n 4.AREA AS FLW:\n 225454N 1192529E\n 225454N 1194529E\n 223454N 1194529E\n 223454N 1192529E\n 225454N 1192529E` },
+  { flag:'🇹🇼', name:'Taiwan', fir:'RCAA FIR', desc:'DDMMSS spaced — AIR EXER', text:`MAY 14 AIR EXER:\n 1.AIRSPACE BLOCKED.\n 5.AREA AS FLW:\n 245400N 1225500E\n 244500N 1225500E\n 243500N 1223800E\n 241700N 1223000E\n 240000N 1225500E\n 245400N 1225500E` },
+  { flag:'🇨🇳', name:'China', fir:'ZBPE/ZGGG FIR', desc:'Decimal-minute N/E prefix', text:`E) TEMPO RESTRICTED AREA ACTIVE:\n AREA BOUNDED BY COORDINATES:\n N3200.0E11800.0\n N3200.0E11900.0\n N3100.0E11900.0\n N3100.0E11800.0\n N3200.0E11800.0` },
+  { flag:'🇯🇵', name:'Japan', fir:'RJJJ FIR', desc:'DDMMSS compact no-space', text:`1.FLT AREA: BOUNDED BY FLW POINTS\n 262727N1274927E 262725N1274925E\n 262723N1274923E 262721N1274922E\n 262718N1274923E 262713N1274926E\n 262727N1274927E` },
+  { flag:'🇰🇷', name:'Korea', fir:'RKRR FIR', desc:'DDMMSS compact — TRA', text:`Q)RKRR/QRTCA/IV/BO/W/000/005/3722N12640E003\n E)TEMPO RESTRICTED AREA ACT AS FLW\n AREA:\n 372223N1264004E\n 373500N1264500E\n 374000N1263000E\n 372223N1264004E` },
+  { flag:'🇮🇳', name:'India', fir:'VABB/VIDP FIR', desc:'DDMMSS.ss decimal-seconds', text:`AIRSPACE BOUNDED BY COORDINATES:\n 301809N 0744331E\n 305528N 0752213E\n COORDS: 190008.57N 0724934.82E\n         190010.20N 0724936.65E` },
+  { flag:'🇸🇬', name:'Singapore', fir:'WSJC FIR', desc:'DDMMSS spaced — standard', text:`E) RESTRICTED AREA ACTIVE:\n AREA BOUNDED BY:\n 013000N 1035000E\n 013000N 1040000E\n 010000N 1040000E\n 010000N 1035000E\n 013000N 1035000E` },
+  { flag:'🇲🇾', name:'Malaysia', fir:'WMFC FIR', desc:'DDMMSS spaced — standard', text:`E) TEMPO DANGER AREA:\n AREA BOUNDED BY:\n 050000N 1150000E\n 050000N 1160000E\n 040000N 1160000E\n 040000N 1150000E\n 050000N 1150000E` },
+  { flag:'🇮🇩', name:'Indonesia', fir:'WAAF FIR', desc:'DDMMSS with S hemisphere', text:`E) RESTRICTED AREA ACTIVE:\n 060000S 1060000E\n 060000S 1070000E\n 070000S 1070000E\n 070000S 1060000E\n 060000S 1060000E` },
+  { flag:'🇵🇭', name:'Philippines', fir:'RPHI FIR', desc:'DDMMSS spaced — standard', text:`E) AIRSPACE RESTRICTED:\n AREA BOUNDED BY:\n 142000N 1210000E\n 142000N 1220000E\n 130000N 1220000E\n 130000N 1210000E\n 142000N 1210000E` },
+  { flag:'🇻🇳', name:'Vietnam', fir:'VVHM FIR', desc:'DDMMSS spaced — standard', text:`E) RESTRICTED AREA ACT:\n AREA:\n 210000N 1060000E\n 210000N 1070000E\n 200000N 1070000E\n 200000N 1060000E\n 210000N 1060000E` },
+  { flag:'🇰🇿', name:'Kazakhstan', fir:'UAAA FIR', desc:'DDMMSS spaced — new route', text:`E) TEMPO RESTRICTED AREA:\n AREA BOUNDED BY:\n 431200N 0764500E\n 431200N 0770000E\n 425500N 0770000E\n 425500N 0764500E\n 431200N 0764500E` },
+];
+
+const FORMATS = [
+  { tag:'F1', fmt:'DDMMSS N DDDMMSS E', ex:'245400N 1225500E', countries:['TH','TW','SG','MY','PH','VN','KR','KZ'] },
+  { tag:'F2', fmt:'DDMMSSN·DDDMMSSE (compact)', ex:'262727N1274927E', countries:['JP','KR'] },
+  { tag:'F3', fmt:'DDMM N DDDMM E (no sec)', ex:'4159N08754W', countries:['ICAO Q-line'] },
+  { tag:'F4', fmt:'NDDMM.M·EDDDMM.M (prefix)', ex:'N3200.0E11800.0', countries:['CN'] },
+  { tag:'F5', fmt:'DDMM.M N DDDMM.M E (suffix)', ex:'3200.0N11800.0E', countries:['CN alt'] },
+  { tag:'F6', fmt:'DDMMSS.ss N DDDMMSS.ss E', ex:'190008.57N 0724934.82E', countries:['IN'] },
+  { tag:'F7', fmt:'DD°MM\'SS"N DDD°MM\'SS"E', ex:'31°00\'53"N 093°08\'12"W', countries:['EU','US'] },
+  { tag:'F8', fmt:'DD-MM-SS N DDD-MM-SS E', ex:'24-54-00N 122-55-00E', countries:['Various'] },
+  { tag:'F9', fmt:'DD MM SS N DDD MM SS E', ex:'31 00 53N 093 08 12W', countries:['Various'] },
+  { tag:'F10', fmt:'DD.dddd N DDD.dddd E', ex:'24.9000N 122.9167E', countries:['Decimal deg'] },
+  { tag:'F11', fmt:'N DD.dddd E DDD.dddd', ex:'N24.9000 E122.9167', countries:['Decimal deg'] },
+  { tag:'F12', fmt:'+DD.dddd -DDD.dddd (signed)', ex:'+24.9000 -122.9167', countries:['Signed dec'] },
+];
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function renderExamples() {
+  const g = document.getElementById('exGrid');
+  EXAMPLES.forEach((ex, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ex-card';
+    btn.innerHTML = `<span class="flag">${ex.flag}</span><div class="name">${ex.name} <span style="color:var(--text3);font-size:11px;">${ex.fir}</span></div><div class="desc">${ex.desc}</div>`;
+    btn.onclick = () => {
+      document.querySelectorAll('.ex-card').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      currentEx = ex;
+      document.getElementById('exPreview').textContent = ex.text;
+    };
+    g.appendChild(btn);
+  });
+}
+
+function renderFormats() {
+  const tb = document.getElementById('fmtBody');
+  FORMATS.forEach(f => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="tag">${f.tag}</span></td>
+      <td style="color:var(--text2);font-size:12px;">${f.fmt}</td>
+      <td><span class="code">${f.ex}</span></td>
+      <td><div class="country-tags">${f.countries.map(c=>`<span class="ctag">${c}</span>`).join('')}</div></td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// TAB
+// ═══════════════════════════════════════════════════════
+function switchTab(t) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// CORE CONVERSION
+// ═══════════════════════════════════════════════════════
+function toNavblue(latD, latM, latS, latDir, lonD, lonM, lonS, lonDir) {
+  latD=parseInt(latD,10); latM=parseInt(latM,10); latS=parseFloat(latS)||0;
+  lonD=parseInt(lonD,10); lonM=parseInt(lonM,10); lonS=parseFloat(lonS)||0;
+  let ls=Math.floor(Math.round(latS)/10), os=Math.floor(Math.round(lonS)/10);
+  return String(latD).padStart(2,'0')+String(latM).padStart(2,'0')+ls+latDir.toUpperCase()+
+         String(lonD).padStart(3,'0')+String(lonM).padStart(2,'0')+os+lonDir.toUpperCase();
+}
+
+function decDegTo(latDec,latDir,lonDec,lonDir) {
+  function sp(v){let d=Math.floor(v),mf=(v-d)*60,m=Math.floor(mf),s=Math.round((mf-m)*60);if(s===60){s=0;m++;}if(m===60){m=0;d++;}return[d,m,s];}
+  let[ld,lm,ls]=sp(latDec),[od,om,os]=sp(lonDec);
+  return toNavblue(ld,lm,ls,latDir,od,om,os,lonDir);
+}
+
+function decMinTo(latD,latMDec,latDir,lonD,lonMDec,lonDir) {
+  let lm=Math.floor(latMDec),ls=Math.round((latMDec-lm)*60);
+  let om=Math.floor(lonMDec),os=Math.round((lonMDec-om)*60);
+  return toNavblue(latD,lm,ls,latDir,lonD,om,os,lonDir);
+}
+
+function parseChunk(s) {
+  s=s.trim(); let m;
+  // F0: NDDMMSSEDDDMMSS — prefix format N331500E1082700
+  m=s.match(/^([NS])(\d{2})(\d{2})(\d{2})([EW])(\d{3})(\d{2})(\d{2})$/i);
+  if(m){return toNavblue(m[2],m[3],m[4],m[1],m[6],m[7],m[8],m[5]);}
+  // F0b: NDDMMEEDDDMM — prefix no-sec N3315E10827
+  m=s.match(/^([NS])(\d{2})(\d{2})([EW])(\d{3})(\d{2})$/i);
+  if(m){return toNavblue(m[2],m[3],0,m[1],m[5],m[6],0,m[4]);}
+  // F1+F2: DDMMSSN DDDMMSSE
+  m=s.match(/^([NS]?)(\d{2})(\d{2})(\d{2})([NS]?)\s*([EW]?)(\d{3})(\d{2})(\d{2})([EW]?)$/i);
+  if(m){let ld=m[1]||m[5]||'N',wd=m[6]||m[10]||'E';return toNavblue(m[2],m[3],m[4],ld,m[7],m[8],m[9],wd);}
+  // F3: DDMMN DDDMME
+  m=s.match(/^([NS]?)(\d{2})(\d{2})([NS]?)\s*([EW]?)(\d{3})(\d{2})([EW]?)$/i);
+  if(m){let ld=m[1]||m[4]||'N',wd=m[5]||m[8]||'E';return toNavblue(m[2],m[3],0,ld,m[6],m[7],0,wd);}
+  // F4: N3200.0E11800.0
+  m=s.match(/^([NS])(\d{2})(\d{2,3}\.\d+)([EW])(\d{3})(\d{2,3}\.\d+)$/i);
+  if(m)return decMinTo(parseInt(m[2],10),parseFloat(m[3]),m[1],parseInt(m[5],10),parseFloat(m[6]),m[4]);
+  // F5: 3200.0N11800.0E
+  m=s.match(/^(\d{2})(\d{2,3}\.\d+)([NS])(\d{3})(\d{2,3}\.\d+)([EW])$/i);
+  if(m)return decMinTo(parseInt(m[1],10),parseFloat(m[2]),m[3],parseInt(m[4],10),parseFloat(m[5]),m[6]);
+  // F6d: decimal-seconds optional space 023000.00N1051628.72E
+  m=s.match(/^(\d{2})(\d{2})(\d{2}\.\d+)\s*([NS])(\d{3})(\d{2})(\d{2}\.\d+)\s*([EW])$/i);
+  if(m)return toNavblue(m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8]);
+  // F6c: compact decimal-seconds no-space 135337.60N1003516.20E
+  m=s.match(/^(\d{2})(\d{2})(\d{2}\.\d+)([NS])(\d{3})(\d{2})(\d{2}\.\d+)([EW])$/i);
+  if(m)return toNavblue(m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8]);
+  // F6: 190008.57N 0724934.82E — spaced
+  m=s.match(/^(\d{2})(\d{2})(\d{2}\.\d+)([NS])\s+(\d{3})(\d{2})(\d{2}\.\d+)([EW])$/i);
+  if(m)return toNavblue(m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8]);
+  // F7: degree symbol with seconds
+  m=s.match(/^(\d{1,2})[°º](\d{2})[''′](\d{2}(?:\.\d+)?)[""″]?\s*([NS])\s+(\d{2,3})[°º](\d{2})[''′](\d{2}(?:\.\d+)?)[""″]?\s*([EW])$/i);
+  if(m)return toNavblue(m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8]);
+  // F7b: degree symbol no seconds
+  m=s.match(/^(\d{1,2})[°º](\d{2})[''′]?\s*([NS])\s+(\d{2,3})[°º](\d{2})[''′]?\s*([EW])$/i);
+  if(m)return toNavblue(m[1],m[2],0,m[3],m[4],m[5],0,m[6]);
+  // F8: dash with seconds
+  m=s.match(/^(\d{1,2})-(\d{2})-(\d{2}(?:\.\d+)?)\s*([NS])\s+(\d{2,3})-(\d{2})-(\d{2}(?:\.\d+)?)\s*([EW])$/i);
+  if(m)return toNavblue(m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8]);
+  // F8b: dash no seconds
+  m=s.match(/^(\d{1,2})-(\d{2})\s*([NS])\s+(\d{2,3})-(\d{2})\s*([EW])$/i);
+  if(m)return toNavblue(m[1],m[2],0,m[3],m[4],m[5],0,m[6]);
+  // F9: space DMS
+  m=s.match(/^(\d{1,2})\s+(\d{2})\s+(\d{2}(?:\.\d+)?)\s*([NS])\s+(\d{2,3})\s+(\d{2})\s+(\d{2}(?:\.\d+)?)\s*([EW])$/i);
+  if(m)return toNavblue(m[1],m[2],m[3],m[4],m[5],m[6],m[7],m[8]);
+  // F10: decimal suffix
+  m=s.match(/^(\d{1,2}\.\d+)\s*([NS])\s+(\d{2,3}\.\d+)\s*([EW])$/i);
+  if(m)return decDegTo(parseFloat(m[1]),m[2],parseFloat(m[3]),m[4]);
+  // F11: decimal prefix
+  m=s.match(/^([NS])\s*(\d{1,2}\.\d+)\s+([EW])\s*(\d{2,3}\.\d+)$/i);
+  if(m)return decDegTo(parseFloat(m[2]),m[1],parseFloat(m[4]),m[3]);
+  // F12: signed
+  m=s.match(/^([+-]?\d{1,2}\.\d+)\s+([+-]?\d{2,3}\.\d+)$/);
+  if(m){let a=parseFloat(m[1]),b=parseFloat(m[2]);return decDegTo(Math.abs(a),a>=0?'N':'S',Math.abs(b),b>=0?'E':'W');}
+  return null;
+}
+
+function extractChunks(text) {
+  // Pre-process step 1: strip non-coord prefixes like "BY:", "AREA:", numbers+dots
+  text = text.replace(/BY:/gi, ' ');
+  text = text.replace(/\b(AREA|BOUNDED|BY|BACK|TO|START|SFC|UNL|VERTICAL|LIMITS|ACFT|ARE|FORBIDDEN|FLY|INTO|THE)\b/gi, ' ');
+
+  // Pre-process step 2: join lines that end with " -" (continuation lines)
+  // so coords split across lines get reunited before we split on delimiters
+  text = text.replace(/([EW]\d*)\s*-\s*\n\s*/gi, '$1\n');
+  text = text.replace(/\n\s*-\s*([NS]\d)/gi, '\n$1');
+
+  // Pre-process step 3: split on " - " or "-" between coordinate pairs [EW]...-[NS]
+  text = text.replace(/([EW]\d*)\s*-\s*([NS]\d)/gi, '$1\n$2');
+
+  // Pre-process step 4: split comma-delimited coords
+  text = text.replace(/([EW]\d*),\s*([NS])/gi, '$1\n$2');
+
+  // Pre-process step 5: normalise multiple spaces
+  text = text.replace(/[ \t]+/g, ' ');
+
+  let res=[],lines=text.split('\n');
+  const pats=[
+    // F0: NDDMMSSEDDDMMSS compact prefix format (e.g. N331500E1082700)
+    /[NS]\d{6}[EW]\d{7}/gi,
+    // F0b: NDDMMEEDDDMM no-sec prefix (e.g. N3315E10827)
+    /[NS]\d{4}[EW]\d{5}/gi,
+    // F4: China prefix decimal-minute N3200.0E11800.0
+    /[NS]\d{2}\d{2,3}\.\d+[EW]\d{3}\d{2,3}\.\d+/gi,
+    // F5: China suffix decimal-minute 3200.0N11800.0E
+    /\d{2}\d{2,3}\.\d+[NS]\d{3}\d{2,3}\.\d+[EW]/gi,
+    // F6d: decimal-seconds with optional space before N/E e.g. 023000.00N1051628.72E
+    /\d{2}\d{2}\d{2}\.\d+\s*[NS]\d{3}\d{2}\d{2}\.\d+\s*[EW]/gi,
+    // F6c: compact decimal-seconds no-space 135337.60N1003516.20E
+    /\d{2}\d{2}\d{2}\.\d+[NS]\d{3}\d{2}\d{2}\.\d+[EW]/gi,
+    // F6: India decimal-seconds spaced 190008.57N 0724934.82E
+    /\d{2}\d{2}\d{2}\.\d+[NS]\s+\d{3}\d{2}\d{2}\.\d+[EW]/gi,
+    // F1+F2: DDMMSSN DDDMMSSE compact or spaced (also catches N/S prefix)
+    /[NS]?\d{6}[NS]\s*[EW]?\d{7}[EW]/gi,
+    /[NS]?\d{6}[NS]?\s+[EW]?\d{7}[EW]?/gi,
+    // F3: DDMM no-sec
+    /\d{4}[NS]\s*\d{5}[EW]/gi,
+    /[NS]\d{4}\s+[EW]\d{5}/gi,
+    // F7: degree symbol
+    /\d{1,2}[°º]\d{2}['’′]\d{2}(?:\.\d+)?["”″]?[NS]\s+\d{2,3}[°º]\d{2}['’′]\d{2}(?:\.\d+)?["”″]?[EW]/gi,
+    /\d{1,2}[°º]\d{2}['’′]?[NS]\s+\d{2,3}[°º]\d{2}['’′]?[EW]/gi,
+    // F8: dash-separated DMS (DD-MM-SS not coord delimiter)
+    /\d{1,2}-\d{2}-\d{2}(?:\.\d+)?[NS]\s+\d{2,3}-\d{2}-\d{2}(?:\.\d+)?[EW]/gi,
+    /\d{1,2}-\d{2}[NS]\s+\d{2,3}-\d{2}[EW]/gi,
+    // F9: space DMS
+    /\d{1,2}\s+\d{2}\s+\d{2}(?:\.\d+)?\s*[NS]\s+\d{2,3}\s+\d{2}\s+\d{2}(?:\.\d+)?\s*[EW]/gi,
+    // F10+F11: decimal degree
+    /\d{1,2}\.\d+\s*[NS]\s+\d{2,3}\.\d+\s*[EW]/gi,
+    /[NS]\s*\d{1,2}\.\d+\s+[EW]\s*\d{2,3}\.\d+/gi,
+  ];
+  for(let line of lines){
+    line=line.trim(); if(!line) continue;
+    for(let re of pats){
+      re.lastIndex=0; let hit,found=false;
+      while((hit=re.exec(line))!==null){res.push(hit[0].trim());found=true;}
+      if(found) break;
+    }
+  }
+  return res;
+}
+
+// ═══════════════════════════════════════════════════════
+// UI ACTIONS
+// ═══════════════════════════════════════════════════════
+function doConvert() {
+  const raw=document.getElementById('inp').value;
+  const outEl=document.getElementById('out');
+  const statEl=document.getElementById('stat');
+  const errEl=document.getElementById('errLine');
+  errEl.style.display='none'; errEl.textContent=''; statEl.textContent='';
+
+  if(!raw.trim()){outEl.className='out-box empty';outEl.textContent='Awaiting input...';return;}
+  const chunks=extractChunks(raw);
+  if(!chunks.length){
+    outEl.className='out-box empty';outEl.textContent='No coordinates found.';
+    errEl.textContent='Check input format — see Format Ref tab for supported formats.';
+    errEl.style.display='block'; return;
+  }
+  const ok=[],fail=[];
+  for(const c of chunks){const r=parseChunk(c);if(r)ok.push(r);else fail.push(c);}
+  outEl.className='out-box';
+  outEl.textContent=ok.length?ok.join('\n'):'Conversion failed.';
+  statEl.innerHTML=`<span>${ok.length}</span> points converted`+(fail.length?` · <span style="color:var(--accent2)">${fail.length}</span> skipped`:'');
+  if(fail.length){
+    errEl.textContent='Skipped: '+fail.slice(0,3).join(' | ')+(fail.length>3?` +${fail.length-3} more`:'');
+    errEl.style.display='block';
+  }
+}
+
+function doCopy() {
+  const t=document.getElementById('out').textContent;
+  const empty=['Awaiting','No coord','Conversion'];
+  if(!t||empty.some(p=>t.startsWith(p)))return;
+  navigator.clipboard.writeText(t).then(()=>{
+    const b=document.getElementById('btnCopy');
+    b.classList.add('copied'); b.textContent='✓ Copied!';
+    setTimeout(()=>{b.classList.remove('copied');b.textContent='Copy Output';},1800);
+  });
+}
+
+function doClear() {
+  document.getElementById('inp').value='';
+  document.getElementById('out').className='out-box empty';
+  document.getElementById('out').textContent='Awaiting input...';
+  document.getElementById('stat').textContent='';
+  document.getElementById('errLine').style.display='none';
+}
+
+let currentEx=null;
+function loadToConvert() {
+  if(!currentEx)return;
+  document.getElementById('inp').value=currentEx.text;
+  switchTab('convert'); document.querySelector('.tab').click();
+  // re-click convert tab properly
+  document.querySelectorAll('.tab')[0].classList.add('active');
+  document.querySelectorAll('.tab')[1].classList.remove('active');
+  document.querySelectorAll('.tab')[2].classList.remove('active');
+  document.getElementById('panel-convert').classList.add('active');
+  document.getElementById('panel-examples').classList.remove('active');
+  document.getElementById('panel-formats').classList.remove('active');
+  doConvert();
+}
+
+function switchTab(t) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+renderExamples();
+renderFormats();
+</script>
+</body>
+</html>
