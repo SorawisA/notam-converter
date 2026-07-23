@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRE EFB W&amp;B</title>
+<style>
+  :root{
+    --bg:#F0F1F5; --surface:#FFFFFF; --ink:#1A1F2E; --ink-soft:#5C6784; --ink-faint:#98A0B8;
+    --accent:#C8102E; --accent-soft:#FBEAEC; --success:#1E8E5A; --success-soft:#E6F6EE;
+    --warning:#B7791F; --warning-soft:#FFF6E2; --info:#2C4A9E; --info-soft:#EAEEFA;
+    --border:#B9BFCE; --border-light:#DDE1EA; --zoneA:#2C4A9E; --zoneB:#0E7C86; --zoneC:#8A4FB5;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:24px 16px 60px;}
+  .wrap{max-width:1080px;margin:0 auto;}
+  .formtitle{text-align:center;font-weight:800;font-size:15px;letter-spacing:.01em;margin-bottom:14px;color:var(--ink);}
+  .formtitle .ref{display:block;font-size:11px;font-weight:600;color:var(--ink-faint);margin-top:2px;}
+  .formbox{border:1.5px solid var(--ink);background:var(--surface);}
+  .fb-title{background:var(--ink);color:#fff;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;}
+  .fb-title .sub{font-weight:600;font-size:10.5px;opacity:.75;text-transform:none;letter-spacing:0;}
+  .hrow{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1.5px solid var(--ink);}
+  .hcell{padding:10px 12px;border-right:1px solid var(--border);}
+  .hcell:last-child{border-right:none;}
+  .hcell label{display:block;font-size:10px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+  .hcell input, .hcell select{width:100%;border:1px solid var(--border-light);border-radius:6px;padding:6px 8px;font-size:13px;font-weight:700;background:#FAFBFD;}
+  .hcell .readout{font-size:11px;color:var(--ink-faint);margin-top:3px;font-weight:600;}
+  .crow{display:grid;grid-template-columns:1fr 1fr 1fr 1.6fr;border-bottom:1.5px solid var(--ink);}
+  .ccell{padding:10px 12px;border-right:1px solid var(--border);}
+  .ccell:last-child{border-right:none;}
+  .ccell label{display:block;font-size:10px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+  .ccell .cval{font-size:13px;font-weight:700;}
+  .ccell .cval.sub{font-size:11px;color:var(--ink-faint);font-weight:600;}
+  .loading-section{display:flex;border-bottom:1.5px solid var(--ink);}
+  .loading-label{writing-mode:vertical-rl;text-orientation:mixed;background:#EDEFF4;border-right:1.5px solid var(--ink);font-size:11px;font-weight:800;letter-spacing:.05em;padding:10px 6px;text-align:center;color:var(--ink-soft);white-space:nowrap;}
+  .loading-body{flex:1;}
+  .pax-table{width:100%;border-collapse:collapse;}
+  .pax-table th{font-size:10px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-faint);font-weight:800;padding:6px 4px;border-bottom:1px solid var(--border-light);text-align:center;}
+  .pax-table td{padding:5px 6px;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border-light);text-align:center;}
+  .pax-table td:last-child{border-right:none;}
+  .pax-table input{width:48px;text-align:center;border:1px solid var(--border-light);border-radius:5px;padding:4px 2px;font-size:12.5px;font-weight:700;background:#FAFBFD;}
+  .pax-table .rowlabel{font-size:10.5px;font-weight:700;color:var(--ink-soft);text-align:left;padding-left:10px;}
+  .zA{color:var(--zoneA);} .zB{color:var(--zoneB);} .zC{color:var(--zoneC);}
+  .cargo-table{width:100%;border-collapse:collapse;}
+  .cargo-table th{font-size:10px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-faint);font-weight:800;padding:6px 4px;border-bottom:1px solid var(--border-light);text-align:center;}
+  .cargo-table td{padding:6px 8px;border-bottom:1px solid var(--border-light);border-right:1px solid var(--border-light);text-align:center;}
+  .cargo-table td:last-child{border-right:none;}
+  .cargo-table input{width:70px;text-align:center;border:1px solid var(--border-light);border-radius:5px;padding:5px 4px;font-size:12.5px;font-weight:700;background:#FAFBFD;}
+  .cargo-table .rowlabel{font-size:10.5px;font-weight:700;color:var(--ink-soft);text-align:left;padding-left:10px;}
+  .cp-col{font-weight:800;font-size:11.5px;}
+  .cp-sub{font-size:9.5px;color:var(--ink-faint);font-weight:600;display:block;}
+  .action-row{display:flex;justify-content:flex-end;gap:8px;padding:8px 12px;background:#F7F8FA;border-bottom:1px solid var(--border-light);}
+  .btn{border:1px solid var(--ink);background:var(--ink);color:#fff;font-size:11.5px;font-weight:700;padding:7px 14px;border-radius:7px;cursor:pointer;}
+  .btn.secondary{background:#fff;color:var(--ink);}
+  .btn:hover{opacity:.85;}
+  .totalrow{display:flex;justify-content:space-between;padding:8px 14px;font-size:12px;font-weight:700;background:#F7F8FA;}
+  .fuel-grid{display:grid;grid-template-columns:repeat(4,1fr);}
+  .fuel-cell{padding:10px 12px;border-right:1px solid var(--border-light);}
+  .fuel-cell:last-child{border-right:none;}
+  .fuel-cell label{display:block;font-size:10px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+  .fuel-cell input{width:100%;border:1px solid var(--border-light);border-radius:6px;padding:6px 8px;font-size:13px;font-weight:700;background:#FAFBFD;}
+
+  .summary-table{width:100%;border-collapse:collapse;}
+  .summary-table td{padding:9px 14px;border-bottom:1px solid var(--border-light);font-size:13px;}
+  .summary-table .lbl{font-weight:700;color:var(--ink-soft);width:40%;}
+  .summary-table .wt{width:28%;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
+  .summary-table .cg{width:32%;font-weight:800;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);}
+  .summary-table tr.hl{background:var(--info-soft);}
+  .summary-table tr.hl .lbl, .summary-table tr.hl .cg{color:var(--info);}
+  .summary-table tr.warnrow{background:var(--accent-soft);}
+  .summary-table tr.warnrow .lbl, .summary-table tr.warnrow .cg{color:var(--accent);}
+
+  .trim-panel{margin-top:20px;}
+  .zfw-readout{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--border-light);}
+  .zfw-cell{padding:12px 14px;border-right:1px solid var(--border-light);}
+  .zfw-cell:last-child{border-right:none;}
+  .zfw-cell label{display:block;font-size:10px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+  .zfw-cell .v{font-size:15px;font-weight:800;}
+  .arm-scale{position:relative;height:104px;margin:34px 0 10px;}
+  .arm-scale .track{position:absolute;top:50px;left:0;right:0;height:6px;background:#EDEFF4;border-radius:999px;}
+  .arm-scale .band{position:absolute;top:48px;height:10px;background:var(--success-soft);border:1px solid var(--success);border-radius:999px;opacity:.6;}
+  .arm-scale .marker{position:absolute;top:44px;width:18px;height:18px;border-radius:50%;transform:translateX(-50%);border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.1);z-index:2;}
+  .arm-scale .marker.limit{background:var(--warning);width:12px;height:12px;top:47px;}
+  .arm-scale .marker.actual{background:var(--accent);}
+  .arm-scale .marker-label{position:absolute;top:66px;font-size:10.5px;font-weight:700;line-height:1.35;transform:translateX(-50%);white-space:nowrap;text-align:center;}
+  .arm-scale .marker-label.above{top:0;}
+  .trim-banner{border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;border:1px solid var(--border-light);margin-top:14px;}
+  .trim-banner .icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;flex-shrink:0;}
+  .trim-banner .headline{font-size:14.5px;font-weight:800;margin-bottom:2px;}
+  .trim-banner .detail{font-size:12.5px;color:var(--ink-soft);}
+  .trim-banner.balanced{background:var(--success-soft);}
+  .trim-banner.balanced .icon{background:var(--success);color:#fff;}
+  .trim-banner.balanced .headline{color:var(--success);}
+  .trim-banner.moderate{background:var(--warning-soft);}
+  .trim-banner.moderate .icon{background:var(--warning);color:#fff;}
+  .trim-banner.moderate .headline{color:var(--warning);}
+  .trim-banner.high{background:var(--accent-soft);}
+  .trim-banner.high .icon{background:var(--accent);color:#fff;}
+  .trim-banner.high .headline{color:var(--accent);}
+
+  .status-row{display:grid;grid-template-columns:110px 1fr 90px 110px;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border-light);font-size:12.5px;}
+  .status-row .name{font-weight:800;}
+  .status-chip{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;text-align:center;}
+  .status-chip.ok{background:var(--success-soft);color:var(--success);}
+  .status-chip.warn{background:var(--warning-soft);color:var(--warning);}
+  .status-chip.bad{background:var(--accent-soft);color:var(--accent);}
+  .status-row .margin{text-align:right;color:var(--ink-soft);font-weight:600;}
+  .overflow-warn{margin:10px 18px;background:var(--accent-soft);border:1px solid #F0C0C6;color:var(--accent);font-size:12.5px;font-weight:700;padding:10px 14px;border-radius:10px;}
+
+  .footnote{margin-top:18px;font-size:11.5px;color:var(--ink-faint);line-height:1.6;padding:0 4px;}
+  .footnote b{color:var(--ink-soft);}
+  .settings-inline{display:flex;gap:14px;flex-wrap:wrap;padding:10px 12px;background:#F7F8FA;border-bottom:1px solid var(--border-light);font-size:11px;}
+  .settings-inline label{font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.03em;margin-right:5px;}
+  .settings-inline input{width:52px;border:1px solid var(--border-light);border-radius:5px;padding:3px 5px;font-size:12px;font-weight:700;}
+
+  /* ---- Mobile / touch (phone & iPad portrait) ---- */
+  @media (max-width: 1024px){
+    body{padding:14px 8px 50px;}
+    .formtitle{font-size:13px;}
+    .hrow{grid-template-columns:1fr 1fr;}
+    .hcell{border-right:none;border-bottom:1px solid var(--border);}
+    .crow{grid-template-columns:1fr 1fr;}
+    .ccell{border-right:none;border-bottom:1px solid var(--border);}
+    .zfw-readout{grid-template-columns:1fr 1fr;}
+    .zfw-cell{border-right:none;border-bottom:1px solid var(--border-light);}
+    .fuel-grid{grid-template-columns:1fr 1fr;}
+    .fuel-cell{border-right:none;border-bottom:1px solid var(--border-light);}
+    .pax-table, .cargo-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap;}
+    .pax-table thead, .pax-table tbody, .cargo-table thead, .cargo-table tbody{display:table;width:100%;}
+    .summary-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    input.num, .pax-table input, .cargo-table input, .hcell input, .hcell select, .settings-inline input, .fuel-cell input{
+      font-size:16px !important; padding:9px 6px;
+    }
+    .pax-table input{width:44px;}
+    .cargo-table input{width:68px;}
+    .btn{min-height:44px;padding:10px 16px;font-size:13px;}
+    .action-row{justify-content:stretch;}
+    .action-row .btn{flex:1;}
+    .arm-scale{margin:34px 4px 10px;}
+    .arm-scale .marker-label{font-size:10px;}
+    .settings-inline span{flex:1 1 45%;}
+    .status-row{grid-template-columns:1fr;text-align:left;gap:4px;}
+  }
+  @media (max-width: 480px){
+    .hrow{grid-template-columns:1fr;}
+    .crow{grid-template-columns:1fr;}
+    .zfw-readout{grid-template-columns:1fr 1fr;}
+    .fuel-grid{grid-template-columns:1fr 1fr;}
+    .formtitle{font-size:12px;}
+    .fb-title{flex-direction:column;align-items:flex-start;gap:3px;}
+    .pax-table input{width:38px;}
+    .cargo-table input{width:60px;}
+  }
+</style>
+</head>
+<body>
+<div id="loadingOverlay" style="position:fixed;inset:0;background:#F0F1F5;z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;">
+  <div style="width:36px;height:36px;border:4px solid #DDE1EA;border-top-color:#1E2761;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+  <div id="loadingText" style="font-size:14px;color:#5C6784;font-weight:700;">กำลังโหลดข้อมูลจาก FlySmart DB...</div>
+  <div id="loadingDetail" style="font-size:12px;color:#98A0B8;max-width:320px;text-align:center;"></div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg);}}</style>
+<div class="wrap">
+
+  <div class="formtitle">EFB WEIGHT AND BALANCE — PRE-CHECK
+    <span class="ref">อ้างอิงเลย์เอาต์จาก TAA/FOP/F/016 · เช็ค ZFW/TOW/LW CG + THS เทียบ certified จาก FlySmart DB</span>
+  </div>
+
+  <div class="formbox">
+    <div class="fb-title">EFB Weight and Balance Form <span class="sub">PRE-CHECK (ไม่ใช่เอกสาร Official)</span></div>
+
+    <div class="hrow">
+      <div class="hcell"><label>Flight No.</label><input type="text" id="flightNo" value="FD3416"></div>
+      <div class="hcell"><label>A/C Type</label><div class="readout" id="acTypeReadout" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:6px;">—</div></div>
+      <div class="hcell"><label>Registration</label><select id="tailSelect"></select></div>
+      <div class="hcell"><label>Departure (IATA)</label><input type="text" id="depIata" value="DMK"></div>
+      <div class="hcell"><label>Arrival (IATA)</label><input type="text" id="arrIata" value="CNX"></div>
+    </div>
+
+    <div class="settings-inline">
+      <span><label>Adult kg</label><input type="number" id="wAdult" value="74"></span>
+      <span><label>Child kg</label><input type="number" id="wChild" value="35"></span>
+      <span><label>Infant kg</label><input type="number" id="wInfant" value="10"></span>
+      <span style="color:var(--ink-faint);font-weight:600;text-transform:none;">(Adult 74kg ยืนยันจาก FlySmart CONFIG STD-Asia · Child/Infant เป็นค่าประมาณ รอยืนยัน)</span>
+    </div>
+
+    <div class="crow">
+      <div class="ccell"><label>Config</label><div class="cval">STD-Asia</div><div class="cval sub">Adult 74kg</div></div>
+      <div class="ccell"><label>Crew / Catering (DOW source)</label><select id="dowConfig" style="width:100%;border:1px solid var(--border-light);border-radius:6px;padding:5px 6px;font-size:13px;font-weight:700;"></select></div>
+      <div class="ccell"><label>Catering</label><div class="cval">Standard</div></div>
+      <div class="ccell"><label>Misc / Special Instructions</label><div class="cval sub">None</div></div>
+    </div>
+
+    <div class="loading-section">
+      <div class="loading-label">LOADING</div>
+      <div class="loading-body">
+        <table class="pax-table" id="paxTable">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width:60px;"></th>
+              <th colspan="3" class="zA">OA</th>
+              <th colspan="3" class="zB">OB</th>
+              <th colspan="3" class="zC">OC</th>
+            </tr>
+            <tr>
+              <th class="zA">A</th><th class="zA">C</th><th class="zA">I</th>
+              <th class="zB">A</th><th class="zB">C</th><th class="zB">I</th>
+              <th class="zC">A</th><th class="zC">C</th><th class="zC">I</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rowlabel">PAX</td>
+              <td><input class="pax-in" data-zone="A" data-f="adult" value="56"></td>
+              <td><input class="pax-in" data-zone="A" data-f="child" value="2"></td>
+              <td><input class="pax-in" data-zone="A" data-f="infant" value="0"></td>
+              <td><input class="pax-in" data-zone="B" data-f="adult" value="53"></td>
+              <td><input class="pax-in" data-zone="B" data-f="child" value="0"></td>
+              <td><input class="pax-in" data-zone="B" data-f="infant" value="0"></td>
+              <td><input class="pax-in" data-zone="C" data-f="adult" value="58"></td>
+              <td><input class="pax-in" data-zone="C" data-f="child" value="0"></td>
+              <td><input class="pax-in" data-zone="C" data-f="infant" value="0"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="loading-section">
+      <div class="loading-label">BAGGAGE &amp; CARGO (Kgs)</div>
+      <div class="loading-body">
+        <table class="cargo-table">
+          <thead>
+            <tr><th>Baggage (Kgs)</th><th>Cargo (Kgs)</th><th>Comail (Kgs)</th><th>DG (Kgs)</th><th>CBWT (Kgs)</th><th>TOTAL Baggage &amp; Cargo (Kgs)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input id="bagwt" value="761"></td>
+              <td><input id="cargowt" value="0"></td>
+              <td><input id="comailwt" value="5"></td>
+              <td><input id="dgwt" value="0"></td>
+              <td><input id="cbwt" value="0"></td>
+              <td style="font-weight:800;font-size:14px;" id="totalBagCargo">766</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="action-row" style="justify-content:space-between;align-items:center;">
+          <label style="font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;font-weight:600;">
+            <input type="checkbox" id="preferAft" style="width:16px;height:16px;">
+            เอนไปทาง Aft (&gt;27% MAC) ตามที่นักบินนิยม
+          </label>
+          <button class="btn secondary" id="btnSuggest">ใช้ค่าที่แนะนำ (Auto-Suggest Compartment)</button>
+        </div>
+        <table class="cargo-table" id="cpTable">
+          <thead><tr id="cpHeadRow"></tr></thead>
+          <tbody><tr id="cpInputRow"></tr></tbody>
+        </table>
+        <div class="totalrow">
+          <div>รวมที่ใส่ Compartment แล้ว: <span id="cpSum">0</span> kg</div>
+          <div id="cpCheck">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-section" style="border-bottom:1px solid var(--ink);">
+      <div class="loading-label">FUEL</div>
+      <div class="loading-body">
+        <div class="fuel-grid">
+          <div class="fuel-cell"><label>FOB (Kgs)</label><input id="fob" value="8300"></div>
+          <div class="fuel-cell"><label>Trip Fuel (Kgs)</label><input id="tripFuel" value="2829"></div>
+          <div class="fuel-cell"><label>Taxi Fuel (Kgs)</label><input id="taxiFuel" value="108"></div>
+          <div class="fuel-cell"><label>Density (kg/l)</label><input id="density" value="0.785"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="trim-panel">
+    <div class="formbox">
+      <div class="fb-title">Weight &amp; CG Summary <span class="sub">ประมาณจาก DOW/DOCG + Pax + Cargo + Fuel — เทียบ Certified Limit (FlySmart DB)</span></div>
+      <table class="summary-table">
+        <tr><td class="lbl">DOW / DOCG</td><td class="wt" id="sDow">—</td><td class="cg" id="sDocg">—</td></tr>
+        <tr class="hl"><td class="lbl">ZFW / ZFWCG</td><td class="wt" id="sZfw">—</td><td class="cg" id="sZfwCg">—</td></tr>
+        <tr id="rowMzfw"><td class="lbl">MZFW</td><td class="wt" id="sMzfwActual">—</td><td class="cg" id="sMzfwLimit">—</td></tr>
+        <tr class="hl" id="rowTow"><td class="lbl">TOW / TOCG</td><td class="wt" id="sTow">—</td><td class="cg" id="sTowCg">—</td></tr>
+        <tr id="rowMtow"><td class="lbl">MTOW</td><td class="wt" id="sMtowActual">—</td><td class="cg" id="sMtowLimit">—</td></tr>
+        <tr class="hl" id="rowLw"><td class="lbl">LW / LCG</td><td class="wt" id="sLw">—</td><td class="cg" id="sLwCg">—</td></tr>
+        <tr id="rowMlw"><td class="lbl">MLW</td><td class="wt" id="sMlwActual">—</td><td class="cg" id="sMlwLimit">—</td></tr>
+        <tr><td class="lbl">T.O. THS</td><td class="wt" colspan="2" id="sThs" style="text-align:right;">—</td></tr>
+        <tr class="warnrow" id="rowUnderload"><td class="lbl">Underload (kg)</td><td class="wt" colspan="2" id="sUnderload" style="text-align:right;">—</td></tr>
+      </table>
+      <div id="fuelOverflowWarn"></div>
+
+      <div style="padding:16px 18px;">
+        <div style="font-size:12px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;">ZFW / TOW / LW CG</div>
+        <div class="arm-scale" id="armScale" style="height:168px;margin:10px 0 6px;"></div>
+        <div id="cgLegend" style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;font-weight:700;margin-bottom:14px;"></div>
+        <div id="deviationText" style="font-size:13px;color:var(--ink-soft);"></div>
+        <div id="trimBanner" class="trim-banner balanced" style="margin-top:14px;">
+          <div class="icon" id="trimIcon">&#10003;</div>
+          <div>
+            <div class="headline" id="trimHeadline">อยู่ในเกณฑ์</div>
+            <div class="detail" id="trimDetail">ZFW CG อยู่ในขอบเขต certified</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding:0 18px 18px;">
+        <div class="status-row"><div class="name">TOW CG</div><div id="towDetail" style="color:var(--ink-soft);">—</div><div></div><div id="towChip"></div></div>
+        <div class="status-row"><div class="name">LW CG</div><div id="lwDetail" style="color:var(--ink-soft);">—</div><div></div><div id="lwChip"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    <b>หน่วย:</b> ค่า CG ทั้งหมดเป็น <b>%MAC</b> (แปลงจาก arm ด้วย LEMAC/MAC ของเครื่องลำนั้น) ตรงกับหน่วยที่ FlySmart แสดง<br>
+    <b>Fuel arm:</b> ประมาณจาก volume ที่แปลงจาก FOB/density แล้วกระจายเข้าถังตามลำดับ OUTER → INNER → CENTER (สมมติฐานลำดับการเติม มาตรฐาน Airbus ทั่วไป) ทดสอบเทียบตัวอย่างจริง 1 ตัวอย่างได้ผลใกล้เคียง (±0.3 %MAC)<br>
+    <b>T.O. THS:</b> interpolate จากตาราง CG→มุม trim ของเครื่องลำนั้น ปัดเป็นทวีคูณ 0.5 องศา — สอบเทียบกับตัวอย่างจริงเพียง 1 ตัวอย่าง ควรหาตัวอย่างเพิ่มเพื่อยืนยัน<br>
+    <b>ข้อจำกัด:</b> เป็นเครื่องมือ pre-check/ประมาณการเท่านั้น ค่าที่ certified จริงต้องยืนยันใน FlySmart เสมอก่อนปิดเอกสาร
+  </div>
+
+</div>
+
+<script>
+let TAIL_DATA = {};
+const API_KEY = 'adtete443tgeabrhy4t4r';
+const SQL_URL = 'https://opscontrol360.com/api/WBdatabase';
+const DOW_API_BASE = 'https://opscontrol360.com/api/techaircraft/';
+
+// ---- SQL parsing helpers ----
+function parseValues(inner){
+  const re = /'([^']*)'|null/g;
+  const out = [];
+  let m;
+  while ((m = re.exec(inner)) !== null){
+    out.push(m[0] === 'null' ? null : m[1]);
+  }
+  return out;
+}
+function getColumns(sqlText, tableName){
+  const re = new RegExp("CREATE TABLE " + tableName + " \\(([\\s\\S]*?)\\n\\);", "m");
+  const m = re.exec(sqlText);
+  if (!m) return [];
+  return m[1].split('\n').map(l=>l.trim()).filter(l=>l && !l.startsWith('PRIMARY KEY')).map(l=>l.split(/\s+/)[0]);
+}
+function getRows(sqlText, tableName, columns){
+  const re = new RegExp("INSERT INTO " + tableName + " VALUES \\(([^;]*)\\);", "g");
+  const rows = [];
+  let m;
+  while ((m = re.exec(sqlText)) !== null){
+    const vals = parseValues(m[1]);
+    const obj = {};
+    columns.forEach((c,i)=>{ obj[c] = vals[i]; });
+    rows.push(obj);
+  }
+  return rows;
+}
+function dedupeAvg(points){
+  const map = new Map();
+  for (const [w,v] of points){
+    if (!map.has(w)) map.set(w, []);
+    map.get(w).push(v);
+  }
+  return [...map.entries()].map(([w,vs])=>[w, vs.reduce((a,b)=>a+b,0)/vs.length]).sort((a,b)=>a[0]-b[0]);
+}
+
+// Parses the raw PERFO SQL dump text into the TAIL_DATA structure the tool uses.
+function parseSqlIntoTailData(sqlText){
+  const data = {};
+  function ensure(tail){
+    if (!data[tail]) data[tail] = { zones:{}, holds:{}, wbData:{}, fwZfw:[], aftZfw:[], fwTo:[], fwLd:[], aftTo:[], aftLd:[], tanks:{}, tankMult:{}, ths:[], dowConfigs:{} };
+    return data[tail];
+  }
+  // WB_CABIN_ZONE (strip leading 'O' from zone codes: OA/OB/OC -> A/B/C)
+  {
+    const cols = getColumns(sqlText, 'WB_CABIN_ZONE');
+    for (const r of getRows(sqlText, 'WB_CABIN_ZONE', cols)){
+      const t = ensure(r.TAIL_NUMBER);
+      const zoneKey = r.CABIN_ZONE.replace(/^O/, '');
+      t.zones[zoneKey] = { harm: parseFloat(r.HARM), max: parseInt(r.MAXCAP) };
+    }
+  }
+  // WB_HOLD
+  {
+    const cols = getColumns(sqlText, 'WB_HOLD');
+    for (const r of getRows(sqlText, 'WB_HOLD', cols)){
+      const t = ensure(r.TAIL_NUMBER);
+      t.holds[r.CPT] = { type: r.HOLD_TYPE, harm: parseFloat(r.HARM), max: parseFloat(r.MAXLOAD) };
+    }
+  }
+  // WB_DATA
+  {
+    const cols = getColumns(sqlText, 'WB_DATA');
+    for (const r of getRows(sqlText, 'WB_DATA', cols)){
+      const t = ensure(r.TAIL_NUMBER);
+      t.wbData = { dow: parseFloat(r.DOW), docg: parseFloat(r.DOCG), mzfw: parseFloat(r.MZFW), mtow: parseFloat(r.MTOW), mlw: parseFloat(r.MLW), refOrigin: parseFloat(r.REF_ORIGIN), refLength: parseFloat(r.REF_LENGTH) };
+      t.dowConfigs['(SQL fallback)'] = { dow: parseFloat(r.DOW), docg: parseFloat(r.DOCG) };
+    }
+  }
+  // WB_FW_ZFW / WB_AFT_ZFW
+  for (const [table, key] of [['WB_FW_ZFW','fwZfw'],['WB_AFT_ZFW','aftZfw']]){
+    const cols = getColumns(sqlText, table);
+    for (const r of getRows(sqlText, table, cols)){
+      if (r.ZFCG === null) continue;
+      const t = ensure(r.TAIL_NUMBER);
+      t[key].push([parseFloat(r.WEIGHT), parseFloat(r.ZFCG)]);
+    }
+  }
+  // WB_FW_OPE_LIMITS / WB_AFT_OPE_LIMITS
+  for (const [table, toKey, ldKey] of [['WB_FW_OPE_LIMITS','fwTo','fwLd'],['WB_AFT_OPE_LIMITS','aftTo','aftLd']]){
+    const cols = getColumns(sqlText, table);
+    for (const r of getRows(sqlText, table, cols)){
+      const t = ensure(r.TAIL_NUMBER);
+      if (r.TAKEOFFCG !== null) t[toKey].push([parseFloat(r.WEIGHT), parseFloat(r.TAKEOFFCG)]);
+      if (r.LANDINGCG !== null) t[ldKey].push([parseFloat(r.WEIGHT), parseFloat(r.LANDINGCG)]);
+    }
+  }
+  for (const tail in data){
+    for (const k of ['fwZfw','aftZfw','fwTo','fwLd','aftTo','aftLd']) data[tail][k] = dedupeAvg(data[tail][k]);
+  }
+  // WB_TANK_GROUP (installed only) -> group id -> name + multiplier
+  const tankGroupName = {}, tankMultRaw = {};
+  {
+    const cols = getColumns(sqlText, 'WB_TANK_GROUP');
+    for (const r of getRows(sqlText, 'WB_TANK_GROUP', cols)){
+      if (r.INSTALLED !== 'Y') continue;
+      tankGroupName[r.TAIL_NUMBER] = tankGroupName[r.TAIL_NUMBER] || {};
+      tankGroupName[r.TAIL_NUMBER][r.GROUP_ID] = r.GROUP_NAME;
+      tankMultRaw[r.TAIL_NUMBER] = tankMultRaw[r.TAIL_NUMBER] || {};
+      tankMultRaw[r.TAIL_NUMBER][r.GROUP_NAME] = parseInt(r.TANKNUMBER);
+    }
+  }
+  // WB_TANK
+  {
+    const cols = getColumns(sqlText, 'WB_TANK');
+    for (const r of getRows(sqlText, 'WB_TANK', cols)){
+      const gname = (tankGroupName[r.TAIL_NUMBER]||{})[r.GROUP_ID];
+      if (!gname) continue;
+      const t = ensure(r.TAIL_NUMBER);
+      t.tanks[gname] = t.tanks[gname] || [];
+      t.tanks[gname].push([parseFloat(r.VOLUME), parseFloat(r.HARM)]);
+    }
+    for (const tail in data){
+      for (const g in data[tail].tanks){
+        data[tail].tanks[g] = [...new Map(data[tail].tanks[g].map(p=>[p[0],p])).values()].sort((a,b)=>a[0]-b[0]);
+      }
+      data[tail].tankMult = tankMultRaw[tail] || {};
+    }
+  }
+  // WB_THS
+  {
+    const cols = getColumns(sqlText, 'WB_THS');
+    for (const r of getRows(sqlText, 'WB_THS', cols)){
+      if (r.INCLINAISON === null) continue;
+      const t = ensure(r.TAIL_NUMBER);
+      t.ths.push([parseFloat(r.CG), parseFloat(r.INCLINAISON)]);
+    }
+    for (const tail in data) data[tail].ths = dedupeAvg(data[tail].ths);
+  }
+  // Derive aircraft type/label from hold layout (A321neo has CP2, A320 doesn't)
+  for (const tail in data){
+    data[tail].actype = data[tail].holds['CP2'] ? 'A321neo' : 'A320';
+    data[tail].mtow = data[tail].wbData.mtow;
+  }
+  return data;
+}
+
+// Fetches DOW/DOCG per crew/catering config from the techaircraft API for one tail,
+// e.g. HS-EAB -> https://opscontrol360.com/api/techaircraft/eab
+async function fetchDowConfigsForTail(tail){
+  const suffix = tail.slice(3).toLowerCase();
+  try {
+    const res = await fetch(DOW_API_BASE + suffix, { headers: { 'x-api-key': API_KEY } });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const spec = json && json.data && json.data.specifications;
+    if (!spec) return null;
+    const cfgs = {};
+    if (spec['DOW3/0'] != null && spec['MAC3/0'] != null) cfgs['3/0'] = { dow: parseFloat(spec['DOW3/0']), docg: parseFloat(spec['MAC3/0']) };
+    if (spec['DOW2CP'] != null && spec['MAC2CP'] != null) cfgs['2CP (Standard)'] = { dow: parseFloat(spec['DOW2CP']), docg: parseFloat(spec['MAC2CP']) };
+    if (spec['DOW3CP'] != null && spec['MAC3CP'] != null) cfgs['3CP'] = { dow: parseFloat(spec['DOW3CP']), docg: parseFloat(spec['MAC3CP']) };
+    return Object.keys(cfgs).length ? cfgs : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Loads everything: fetches + parses the SQL dump, then fetches per-tail DOW configs
+// (overriding the SQL fallback when the API succeeds), and populates TAIL_DATA.
+async function loadAllData(){
+  const loadingText = document.getElementById('loadingText');
+  const loadingDetail = document.getElementById('loadingDetail');
+  try {
+    loadingText.textContent = 'กำลังโหลดข้อมูล FlySmart DB...';
+    const sqlRes = await fetch(SQL_URL);
+    if (!sqlRes.ok) throw new Error('SQL fetch failed: ' + sqlRes.status);
+    const sqlText = await sqlRes.text();
+    loadingText.textContent = 'กำลังแปลงข้อมูล...';
+    const parsed = parseSqlIntoTailData(sqlText);
+
+    const tails = Object.keys(parsed);
+    loadingText.textContent = 'กำลังโหลด DOW/DOCG ตาม config...';
+    loadingDetail.textContent = `0 / ${tails.length} ลำ`;
+    let done = 0;
+    await Promise.all(tails.map(async (tail)=>{
+      const cfgs = await fetchDowConfigsForTail(tail);
+      if (cfgs) parsed[tail].dowConfigs = cfgs;
+      done++;
+      loadingDetail.textContent = `${done} / ${tails.length} ลำ`;
+    }));
+
+    TAIL_DATA = parsed;
+    document.getElementById('loadingOverlay').style.display = 'none';
+  } catch (err) {
+    loadingText.textContent = 'โหลดข้อมูลไม่สำเร็จ';
+    loadingDetail.innerHTML = 'เกิดข้อผิดพลาด: ' + err.message + '<br>กรุณาลองรีเฟรชหน้านี้ใหม่ หรือตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+  }
+}
+
+const zones = ['A','B','C'];
+
+function currentAircraft(){ return TAIL_DATA[document.getElementById('tailSelect').value]; }
+
+function populateTailSelect(){
+  const sel = document.getElementById('tailSelect');
+  Object.keys(TAIL_DATA).sort().forEach(tail=>{
+    const opt = document.createElement('option');
+    opt.value = tail; opt.textContent = tail;
+    if (tail === 'HS-CBH') opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function currentDow(ac){
+  const sel = document.getElementById('dowConfig');
+  const cfg = ac.dowConfigs[sel.value] || Object.values(ac.dowConfigs)[0];
+  return cfg;
+}
+
+function populateDowConfig(ac){
+  const sel = document.getElementById('dowConfig');
+  sel.innerHTML = '';
+  const keys = Object.keys(ac.dowConfigs);
+  const preferred = '2CP (Standard)';
+  keys.forEach(k=>{
+    const opt = document.createElement('option');
+    opt.value = k; opt.textContent = k;
+    if (k === preferred) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  if (!keys.includes(preferred) && keys.length) sel.value = keys[0];
+}
+
+function buildCpTable(){
+  const ac = currentAircraft();
+  const headRow = document.getElementById('cpHeadRow');
+  const inputRow = document.getElementById('cpInputRow');
+  headRow.innerHTML = ''; inputRow.innerHTML = '';
+  const order = ['CP1','CP2','CP3','CP4','CP5'];
+  order.forEach(cpt=>{
+    const h = ac.holds[cpt];
+    if (!h) return;
+    const th = document.createElement('th');
+    th.innerHTML = `<span class="cp-col">${cpt}</span><span class="cp-sub">${h.type} · max ${h.max.toLocaleString()}kg</span>`;
+    headRow.appendChild(th);
+    const td = document.createElement('td');
+    td.innerHTML = `<input class="cp-in" data-cpt="${cpt}" value="0">`;
+    inputRow.appendChild(td);
+  });
+}
+
+function getInput(el){ return parseFloat(el.value) || 0; }
+function zonePax(zone){
+  return {
+    adult: getInput(document.querySelector(`.pax-in[data-zone="${zone}"][data-f="adult"]`)),
+    child: getInput(document.querySelector(`.pax-in[data-zone="${zone}"][data-f="child"]`)),
+    infant: getInput(document.querySelector(`.pax-in[data-zone="${zone}"][data-f="infant"]`))
+  };
+}
+function zoneWeight(zone, w){
+  const p = zonePax(zone);
+  return p.adult*w.adult + p.child*w.child + p.infant*w.infant;
+}
+function stdWeights(){
+  return { adult: getInput(document.getElementById('wAdult')), child: getInput(document.getElementById('wChild')), infant: getInput(document.getElementById('wInfant')) };
+}
+function payloadTotal(){
+  return getInput(document.getElementById('bagwt')) + getInput(document.getElementById('cargowt')) +
+         getInput(document.getElementById('comailwt')) + getInput(document.getElementById('dgwt')) +
+         getInput(document.getElementById('cbwt'));
+}
+
+function interp(points, x){
+  if (!points || points.length===0) return null;
+  if (x <= points[0][0]) return points[0][1];
+  const last = points[points.length-1];
+  if (x >= last[0]) return last[1];
+  for (let i=0;i<points.length-1;i++){
+    const [w0,c0] = points[i], [w1,c1] = points[i+1];
+    if (x>=w0 && x<=w1){ if (w1===w0) return c0; return c0 + (c1-c0)*(x-w0)/(w1-w0); }
+  }
+  return last[1];
+}
+
+function paxAggregate(ac, w){
+  let num=0, den=0;
+  zones.forEach(z=>{ if(ac.zones[z]){ const wt = zoneWeight(z,w); num += wt*ac.zones[z].harm; den += wt; } });
+  return {num, den};
+}
+
+function macToArm(mac, ac){ return ac.wbData.refOrigin + (mac/100) * ac.wbData.refLength; }
+function armToMac(arm, ac){ return (arm - ac.wbData.refOrigin) / ac.wbData.refLength * 100; }
+
+// Distributes `fuelKg` across the aircraft's tanks in fill order
+// (OUTER -> INNER -> CENTER, standard Airbus refuel sequence) and returns
+// the resulting total moment (kg*m) and weight actually placed.
+function computeFuelMoment(fuelKg, ac){
+  const density = getInput(document.getElementById('density'));
+  if (density <= 0 || fuelKg <= 0) return {moment:0, weight:0, overflowKg:0};
+  let remainingVol = fuelKg / density;
+  // Fill order: CENTER is always last (only used once wing-side tanks are
+  // full) — regardless of how the wing-side group(s) are named (A320 splits
+  // them into OUTER/INNER, A321 has one combined WING group). Matches the
+  // AMM: auto/manual refuel both fill wing tanks (outer->inner) before center.
+  const groupNames = Object.keys(ac.tanks || {});
+  const rank = { OUTER:0, INNER:1 };
+  const order = groupNames.filter(n=>n!=='CENTER')
+    .sort((a,b)=>(rank[a]??2)-(rank[b]??2))
+    .concat(groupNames.filter(n=>n==='CENTER'));
+
+  let moment = 0, weight = 0;
+  for (const name of order){
+    const bp = ac.tanks[name];
+    if (!bp || bp.length === 0) continue;
+    // Breakpoints are per physical tank; WING/OUTER/INNER groups represent a
+    // left+right pair (tankMult=2) while CENTER is a single tank (tankMult=1).
+    // AMM-confirmed: e.g. HS-EAF WING = 2 x 7,690L, not 7,690L total.
+    const tankMult = (ac.tankMult && ac.tankMult[name]) || 1;
+    const perSideCapacity = bp[bp.length-1][0];
+    const groupCapacity = perSideCapacity * tankMult;
+    const useVolTotal = Math.min(groupCapacity, remainingVol);
+    if (useVolTotal <= 0) continue;
+    const perSideVol = useVolTotal / tankMult;
+    const arm = interp(bp, perSideVol);
+    const wt = useVolTotal * density;
+    moment += wt * arm;
+    weight += wt;
+    remainingVol -= useVolTotal;
+    if (remainingVol <= 1e-6) break;
+  }
+  const overflowKg = Math.max(0, remainingVol) * density;
+  return {moment, weight, overflowKg};
+}
+
+// Allocates `pool` kg across holds so the resulting weighted-average arm of the
+// cargo gets as close as possible to `target`, respecting each hold's max capacity.
+// Uses at most the 2 holds that bracket the target first, spilling into further
+// holds only when a bracketing hold's capacity is hit.
+function allocateToTarget(holds, pool, target){
+  let remainingHolds = holds.map(h=>({...h}));
+  let remainingPool = pool;
+  let currentTarget = target;
+  const alloc = {};
+  let guard = 0;
+  while (remainingPool > 1e-6 && remainingHolds.length > 0 && guard < 20){
+    guard++;
+    remainingHolds.sort((a,b)=>a.harm-b.harm);
+    const minH = remainingHolds[0].harm;
+    const maxH = remainingHolds[remainingHolds.length-1].harm;
+
+    if (currentTarget <= minH){
+      for (const h of remainingHolds){
+        if (remainingPool<=1e-9) break;
+        const put = Math.min(h.max, remainingPool);
+        alloc[h.cpt] = (alloc[h.cpt]||0) + put;
+        remainingPool -= put;
+      }
+      break;
+    }
+    if (currentTarget >= maxH){
+      for (let i=remainingHolds.length-1; i>=0; i--){
+        const h = remainingHolds[i];
+        if (remainingPool<=1e-9) break;
+        const put = Math.min(h.max, remainingPool);
+        alloc[h.cpt] = (alloc[h.cpt]||0) + put;
+        remainingPool -= put;
+      }
+      break;
+    }
+
+    let low=null, high=null;
+    for (const h of remainingHolds){ if (h.harm <= currentTarget) low = h; }
+    for (const h of remainingHolds){ if (h.harm > currentTarget){ high = h; break; } }
+
+    const P = remainingPool, T = currentTarget;
+    let x = P * (high.harm - T) / (high.harm - low.harm);
+    let y = P - x;
+    const lowOver = x - low.max;
+    const highOver = y - high.max;
+
+    if (lowOver <= 1e-9 && highOver <= 1e-9){
+      alloc[low.cpt] = (alloc[low.cpt]||0) + x;
+      alloc[high.cpt] = (alloc[high.cpt]||0) + y;
+      remainingPool = 0;
+      break;
+    }
+    if (lowOver > 0 && highOver > 0){
+      alloc[low.cpt] = (alloc[low.cpt]||0) + low.max;
+      alloc[high.cpt] = (alloc[high.cpt]||0) + high.max;
+      remainingPool = P - low.max - high.max;
+      remainingHolds = remainingHolds.filter(h=>h.cpt!==low.cpt && h.cpt!==high.cpt);
+      continue;
+    }
+    if (lowOver > 0){
+      alloc[low.cpt] = (alloc[low.cpt]||0) + low.max;
+      const newPool = P - low.max;
+      currentTarget = newPool > 1e-9 ? (T*P - low.max*low.harm) / newPool : T;
+      remainingPool = newPool;
+      remainingHolds = remainingHolds.filter(h=>h.cpt!==low.cpt);
+      continue;
+    }
+    alloc[high.cpt] = (alloc[high.cpt]||0) + high.max;
+    const newPool = P - high.max;
+    currentTarget = newPool > 1e-9 ? (T*P - high.max*high.harm) / newPool : T;
+    remainingPool = newPool;
+    remainingHolds = remainingHolds.filter(h=>h.cpt!==high.cpt);
+  }
+  return { alloc, overflow: Math.max(0, remainingPool) };
+}
+
+function suggestSplit(){
+  const ac = currentAircraft();
+  const w = stdWeights();
+  const pax = paxAggregate(ac, w);
+  const pool = payloadTotal();
+  if (pool <= 1e-9){
+    document.querySelectorAll('.cp-in').forEach(inp=>{ inp.value = '0'; });
+    renderCpTags({});
+    return;
+  }
+
+  const dowSel = currentDow(ac);
+  const dow = dowSel.dow;
+  const dowArm = macToArm(dowSel.docg, ac);
+  const zfw = dow + pax.den + pool;
+  const fwdLimitMac = interp(ac.fwZfw, zfw);
+  const aftLimitMac = interp(ac.aftZfw, zfw);
+
+  const preferAft = document.getElementById('preferAft') && document.getElementById('preferAft').checked;
+  let targetMac = (fwdLimitMac + aftLimitMac) / 2;
+  if (preferAft){
+    const margin = (aftLimitMac - fwdLimitMac) * 0.1;
+    const wanted = Math.max(27, fwdLimitMac + margin);
+    targetMac = Math.min(wanted, aftLimitMac - margin);
+  }
+  const targetArm = macToArm(targetMac, ac);
+  const targetTotalNum = targetArm * zfw;
+  const targetCpNum = targetTotalNum - dow*dowArm - pax.num;
+  const targetAvgHarm = targetCpNum / pool;
+
+  const holdEntries = Object.entries(ac.holds).map(([cpt,h])=>({cpt,...h}));
+  const nonBulk = holdEntries.filter(h=>h.type !== 'Bulk Hold');
+  const bulk = holdEntries.filter(h=>h.type === 'Bulk Hold');
+
+  // Keep Baggage and Cargo/Comail/DG/CBWT in separate compartments where
+  // possible (easier to offload cargo at a stop without digging through
+  // passenger bags), but hitting the target CG always takes priority —
+  // splitting across a couple of partially-filled holds is normal practice
+  // whenever the load isn't naturally centered.
+  const bagPool = getInput(document.getElementById('bagwt'));
+  const cargoPool = getInput(document.getElementById('cargowt')) + getInput(document.getElementById('comailwt')) +
+                    getInput(document.getElementById('dgwt')) + getInput(document.getElementById('cbwt'));
+
+  let cargoAlloc = {};
+  let cargoUsedCpts = [];
+  if (cargoPool > 1e-9){
+    const fittingSingle = nonBulk.filter(h=>h.max >= cargoPool)
+      .sort((a,b)=>Math.abs(a.harm-targetAvgHarm)-Math.abs(b.harm-targetAvgHarm));
+    if (fittingSingle.length > 0){
+      cargoAlloc[fittingSingle[0].cpt] = cargoPool;
+      cargoUsedCpts = [fittingSingle[0].cpt];
+    } else {
+      const r = allocateToTarget(nonBulk, cargoPool, targetAvgHarm);
+      cargoAlloc = r.alloc;
+      cargoUsedCpts = Object.keys(r.alloc);
+      if (r.overflow > 1e-6 && bulk.length > 0){
+        const rb = allocateToTarget(bulk, r.overflow, targetAvgHarm);
+        cargoAlloc = { ...cargoAlloc, ...rb.alloc };
+        cargoUsedCpts = [...cargoUsedCpts, ...Object.keys(rb.alloc)];
+      }
+    }
+  }
+
+  const remainingHolds = holdEntries.filter(h=>!cargoUsedCpts.includes(h.cpt));
+  const remainingNonBulk = remainingHolds.filter(h=>h.type !== 'Bulk Hold');
+  const remainingBulk = remainingHolds.filter(h=>h.type === 'Bulk Hold');
+
+  let bagAlloc = {};
+  if (bagPool > 1e-9){
+    let r = allocateToTarget(remainingNonBulk, bagPool, targetAvgHarm);
+    bagAlloc = r.alloc;
+    let overflow = r.overflow;
+    if (overflow > 1e-6 && remainingBulk.length > 0){
+      const rb = allocateToTarget(remainingBulk, overflow, targetAvgHarm);
+      bagAlloc = { ...bagAlloc, ...rb.alloc };
+      overflow = rb.overflow;
+    }
+    if (overflow > 1e-6 && cargoUsedCpts.length > 0){
+      const spareInCargoHolds = cargoUsedCpts.map(cpt=>{
+        const h = holdEntries.find(x=>x.cpt===cpt);
+        const used = cargoAlloc[cpt] || 0;
+        return { ...h, max: h.max - used };
+      }).filter(h=>h.max > 1e-6);
+      const rm = allocateToTarget(spareInCargoHolds, overflow, targetAvgHarm);
+      for (const cpt in rm.alloc){ bagAlloc[cpt] = (bagAlloc[cpt]||0) + rm.alloc[cpt]; }
+    }
+  }
+
+  const totalAlloc = {};
+  for (const cpt in cargoAlloc) totalAlloc[cpt] = (totalAlloc[cpt]||0) + cargoAlloc[cpt];
+  for (const cpt in bagAlloc) totalAlloc[cpt] = (totalAlloc[cpt]||0) + bagAlloc[cpt];
+
+  document.querySelectorAll('.cp-in').forEach(inp=>{
+    inp.value = (totalAlloc[inp.dataset.cpt]||0).toFixed(0);
+  });
+
+  const tags = {};
+  Object.keys(ac.holds).forEach(cpt=>{
+    const hasCargo = (cargoAlloc[cpt]||0) > 1e-6;
+    const hasBag = (bagAlloc[cpt]||0) > 1e-6;
+    if (hasCargo && hasBag) tags[cpt] = 'mixed';
+    else if (hasCargo) tags[cpt] = 'cargo';
+    else if (hasBag) tags[cpt] = 'bag';
+  });
+  renderCpTags(tags);
+}
+
+function renderCpTags(tags){
+  document.querySelectorAll('.cp-in').forEach(inp=>{
+    const cpt = inp.dataset.cpt;
+    const existing = inp.parentElement.querySelector('.cp-tag');
+    if (existing) existing.remove();
+    const tag = tags[cpt];
+    if (!tag) return;
+    const span = document.createElement('div');
+    span.className = 'cp-tag';
+    const labels = { bag:['Baggage','#2C4A9E'], cargo:['Cargo/Comail','#B7791F'], mixed:['ปนกัน (เกิน capacity)','var(--accent)'] };
+    const [text, color] = labels[tag];
+    span.textContent = text;
+    span.style.cssText = `font-size:9.5px;font-weight:700;color:${color};margin-top:3px;`;
+    inp.parentElement.appendChild(span);
+  });
+}
+
+function statusChip(cg, fwd, aft){
+  if (cg < fwd || cg > aft) return {cls:'bad', label:'นอกเกณฑ์'};
+  const band = aft-fwd;
+  const margin = Math.min(cg-fwd, aft-cg);
+  if (band>0 && margin/band < 0.1) return {cls:'warn', label:'ใกล้ขอบ'};
+  return {cls:'ok', label:'อยู่ในเกณฑ์'};
+}
+
+function recalc(){
+  const ac = currentAircraft();
+  if (!ac) return;
+  document.getElementById('acTypeReadout').textContent = `${ac.actype} · ${Object.keys(ac.holds).length} compartments`;
+
+  const w = stdWeights();
+  const totalBagCargo = getInput(document.getElementById('bagwt')) + getInput(document.getElementById('cargowt'));
+  document.getElementById('totalBagCargo').textContent = totalBagCargo.toFixed(0);
+
+  const pax = paxAggregate(ac, w);
+
+  let cpNum=0, cpDen=0;
+  document.querySelectorAll('.cp-in').forEach(inp=>{
+    const cpt = inp.dataset.cpt; const h = ac.holds[cpt]; const wt = getInput(inp);
+    cpNum += wt*h.harm; cpDen += wt;
+  });
+
+  let cpSum = 0;
+  document.querySelectorAll('.cp-in').forEach(inp=>{ cpSum += getInput(inp); });
+  document.getElementById('cpSum').textContent = cpSum.toFixed(0);
+  const pool = payloadTotal();
+  const cpCheck = document.getElementById('cpCheck');
+  const diff = pool - cpSum;
+  if (Math.abs(diff) < 0.5){
+    cpCheck.innerHTML = '<span style="color:var(--success);font-weight:700;">ตรงกับยอดรวม Payload ✓</span>';
+  } else if (diff > 0){
+    cpCheck.innerHTML = `<span style="color:var(--accent);font-weight:700;">ยังเหลือ ${diff.toFixed(0)} kg ที่ยังไม่ได้ระบุ compartment</span>`;
+  } else {
+    cpCheck.innerHTML = `<span style="color:var(--accent);font-weight:700;">ใส่เกินยอด Payload รวมอยู่ ${Math.abs(diff).toFixed(0)} kg</span>`;
+  }
+
+  const dowSel = currentDow(ac);
+  const dow = dowSel.dow;
+  const dowArm = macToArm(dowSel.docg, ac);
+  const zfw = dow + pax.den + cpDen;
+  const zfwNum = dow*dowArm + pax.num + cpNum;
+  const zfwArm = zfw > 0 ? zfwNum/zfw : dowArm;
+  const zfwCG = armToMac(zfwArm, ac);
+
+  const fwdLimit = interp(ac.fwZfw, zfw);
+  const aftLimit = interp(ac.aftZfw, zfw);
+
+  // --- Fuel / TOW / LW ---
+  const fob = getInput(document.getElementById('fob'));
+  const tripFuel = getInput(document.getElementById('tripFuel'));
+  const taxiFuel = getInput(document.getElementById('taxiFuel'));
+  const toFuelWt = Math.max(0, fob - taxiFuel);
+  const tow = zfw + toFuelWt;
+  const lwFuelWt = Math.max(0, toFuelWt - tripFuel);
+  const lw = zfw + lwFuelWt;
+
+  const fuelAtTow = computeFuelMoment(toFuelWt, ac);
+  const fuelAtLw = computeFuelMoment(lwFuelWt, ac);
+  const towOverflow = fuelAtTow.overflowKg > 1;
+  const lwOverflow = fuelAtLw.overflowKg > 1;
+
+  const towNum = zfwNum + fuelAtTow.moment;
+  const towArm = tow > 0 ? towNum/tow : zfwArm;
+  const towCG = armToMac(towArm, ac);
+
+  const lwNum = zfwNum + fuelAtLw.moment;
+  const lwArm = lw > 0 ? lwNum/lw : zfwArm;
+  const lwCG = armToMac(lwArm, ac);
+
+  const towFwd = interp(ac.fwTo, tow), towAft = interp(ac.aftTo, tow);
+  const lwFwd = interp(ac.fwLd, lw), lwAft = interp(ac.aftLd, lw);
+
+  const thsRaw = interp(ac.ths, towCG);
+  const thsDisplay = Math.abs(thsRaw).toFixed(1);
+  const thsDir = thsRaw >= 0 ? 'UP' : 'DN';
+
+  // --- Underload ---
+  const mzfw = ac.wbData.mzfw, mtow = ac.wbData.mtow, mlw = ac.wbData.mlw;
+  const ulOptions = [ {name:'MZFW', val: mzfw-zfw}, {name:'MTOW', val: mtow-tow}, {name:'MLW', val: mlw-lw} ];
+  ulOptions.sort((a,b)=>a.val-b.val);
+  const underload = ulOptions[0].val;
+  const limitedBy = ulOptions[0].name;
+
+  // --- fill summary table ---
+  document.getElementById('sDow').textContent = dow.toLocaleString(undefined,{maximumFractionDigits:0})+' kg';
+  document.getElementById('sDocg').textContent = dowSel.docg.toFixed(2)+' %MAC';
+  document.getElementById('sZfw').textContent = zfw.toLocaleString(undefined,{maximumFractionDigits:0})+' kg';
+  document.getElementById('sZfwCg').textContent = zfwCG.toFixed(2)+' %MAC';
+  document.getElementById('sTow').textContent = tow.toLocaleString(undefined,{maximumFractionDigits:0})+' kg';
+  document.getElementById('sTowCg').textContent = towOverflow ? 'N/A' : towCG.toFixed(2)+' %MAC';
+  document.getElementById('sLw').textContent = lw.toLocaleString(undefined,{maximumFractionDigits:0})+' kg';
+  document.getElementById('sLwCg').textContent = lwOverflow ? 'N/A' : lwCG.toFixed(2)+' %MAC';
+  document.getElementById('sThs').textContent = towOverflow ? 'N/A (ดูคำเตือนด้านล่าง)' : thsDisplay+'° '+thsDir+' (TOCG '+towCG.toFixed(1)+'%)';
+  document.getElementById('sUnderload').textContent = underload.toLocaleString(undefined,{maximumFractionDigits:0})+' kg — LIMITED BY '+limitedBy;
+
+  document.getElementById('sMzfwActual').textContent = 'Actual '+zfw.toLocaleString(undefined,{maximumFractionDigits:0})+' kg';
+  document.getElementById('sMzfwLimit').textContent = 'Limit '+mzfw.toLocaleString()+' kg';
+  document.getElementById('sMtowActual').textContent = 'Actual '+tow.toLocaleString(undefined,{maximumFractionDigits:0})+' kg';
+  document.getElementById('sMtowLimit').textContent = 'Limit '+mtow.toLocaleString()+' kg';
+  document.getElementById('sMlwActual').textContent = 'Actual '+lw.toLocaleString(undefined,{maximumFractionDigits:0})+' kg';
+  document.getElementById('sMlwLimit').textContent = 'Limit '+mlw.toLocaleString()+' kg';
+  function limitRow(rowId, actual, limit){
+    const row = document.getElementById(rowId);
+    row.classList.remove('warnrow');
+    row.querySelectorAll('td').forEach(td=>td.style.color='');
+    if (actual > limit){
+      row.classList.add('warnrow');
+      row.querySelectorAll('td').forEach(td=>td.style.color='var(--accent)');
+    }
+  }
+  limitRow('rowMzfw', zfw, mzfw);
+  limitRow('rowMtow', tow, mtow);
+  limitRow('rowMlw', lw, mlw);
+
+  // TOW / LW status rows
+  const fuelWarnDiv = document.getElementById('fuelOverflowWarn');
+  if (towOverflow || lwOverflow){
+    const short = Math.max(fuelAtTow.overflowKg, fuelAtLw.overflowKg);
+    fuelWarnDiv.innerHTML = `<div class="overflow-warn">น้ำหนักเชื้อเพลิงเกิน capacity ที่มีข้อมูล arm รองรับอยู่ ~${short.toFixed(0)} kg — TOW/LW CG และ T.O.THS ไม่แสดงผล (ไม่แม่นยำพอ) กรุณาตรวจสอบใน FlySmart โดยตรงสำหรับเที่ยวบินนี้</div>`;
+  } else {
+    fuelWarnDiv.innerHTML = '';
+  }
+
+  if (towOverflow){
+    document.getElementById('towDetail').textContent = 'ไม่แสดงผล — ข้อมูล fuel tank ไม่ครอบคลุมน้ำหนักเชื้อเพลิงนี้';
+    document.getElementById('towChip').innerHTML = `<span class="status-chip warn">N/A</span>`;
+  } else {
+    const towStatus = statusChip(towCG, towFwd, towAft);
+    document.getElementById('towDetail').textContent = `${towCG.toFixed(2)}% (เกณฑ์ ${towFwd.toFixed(2)}–${towAft.toFixed(2)}%) · น้ำหนัก ${tow.toFixed(0)} kg`;
+    document.getElementById('towChip').innerHTML = `<span class="status-chip ${towStatus.cls}">${towStatus.label}</span>`;
+  }
+  if (lwOverflow){
+    document.getElementById('lwDetail').textContent = 'ไม่แสดงผล — ข้อมูล fuel tank ไม่ครอบคลุมน้ำหนักเชื้อเพลิงนี้';
+    document.getElementById('lwChip').innerHTML = `<span class="status-chip warn">N/A</span>`;
+  } else {
+    const lwStatus = statusChip(lwCG, lwFwd, lwAft);
+    document.getElementById('lwDetail').textContent = `${lwCG.toFixed(2)}% (เกณฑ์ ${lwFwd.toFixed(2)}–${lwAft.toFixed(2)}%) · น้ำหนัก ${lw.toFixed(0)} kg`;
+    document.getElementById('lwChip').innerHTML = `<span class="status-chip ${lwStatus.cls}">${lwStatus.label}</span>`;
+  }
+
+  // --- Combined CG scale: one shared axis, 3 colored lanes (each phase
+  // keeps its own fwd/aft band visible instead of merging into one line) ---
+  const zfwStatus = statusChip(zfwCG, fwdLimit, aftLimit);
+  const phases = [
+    { key:'zfw', label:'ZFWCG', color:'#C8102E', fwd:fwdLimit, aft:aftLimit, value:zfwCG, status:zfwStatus.cls, show:true },
+    { key:'tow', label:'TOCG',  color:'#2C6ECB', fwd:towFwd,   aft:towAft,   value:towCG, status: towOverflow?'warn':statusChip(towCG,towFwd,towAft).cls, show:!towOverflow },
+    { key:'lw',  label:'LDCG',  color:'#1E8E5A', fwd:lwFwd,    aft:lwAft,    value:lwCG,  status: lwOverflow?'warn':statusChip(lwCG,lwFwd,lwAft).cls,  show:!lwOverflow }
+  ];
+  const visiblePhases = phases.filter(p=>p.show);
+  const allVals = visiblePhases.flatMap(p=>[p.fwd, p.aft, p.value]);
+  const pad = Math.max((Math.max(...allVals)-Math.min(...allVals))*0.12, 1);
+  const minH = Math.min(...allVals)-pad, maxH = Math.max(...allVals)+pad;
+  const span = (maxH-minH)||1;
+  function toPct(v){ return ((v-minH)/span)*100; }
+
+  const scale = document.getElementById('armScale');
+  scale.innerHTML = '';
+
+  // shared gridlines + %MAC labels (bottom)
+  const gridStart = Math.ceil(minH/5)*5;
+  for (let g=gridStart; g<=maxH; g+=5){
+    const x = toPct(g);
+    const tick = document.createElement('div');
+    tick.style.cssText = `position:absolute;left:${x}%;top:8px;width:1px;height:138px;background:#EDEFF4;transform:translateX(-50%);z-index:0;`;
+    scale.appendChild(tick);
+    const t = document.createElement('div');
+    t.style.cssText = `position:absolute;left:${x}%;top:150px;font-size:9.5px;color:var(--ink-faint);transform:translateX(-50%);`;
+    t.textContent = g+'%';
+    scale.appendChild(t);
+  }
+
+  // one lane per phase: colored band from fwd->aft, end-tick caps, and the actual point
+  const lanes = { zfw:26, tow:72, lw:118 };
+  visiblePhases.forEach(p=>{
+    const laneY = lanes[p.key];
+    const fwdX = toPct(p.fwd), aftX = toPct(p.aft), valX = toPct(p.value);
+    const band = document.createElement('div');
+    band.style.cssText = `position:absolute;left:${fwdX}%;width:${aftX-fwdX}%;top:${laneY}px;height:5px;background:${p.color};opacity:.35;border-radius:3px;z-index:1;`;
+    scale.appendChild(band);
+    [fwdX, aftX].forEach(x=>{
+      const cap = document.createElement('div');
+      cap.style.cssText = `position:absolute;left:${x}%;top:${laneY-7}px;width:2px;height:19px;background:${p.color};transform:translateX(-50%);z-index:1;`;
+      scale.appendChild(cap);
+    });
+    const dot = document.createElement('div');
+    const outOfRange = p.value < p.fwd || p.value > p.aft;
+    dot.style.cssText = `position:absolute;left:${valX}%;top:${laneY-6}px;width:17px;height:17px;border-radius:50%;transform:translateX(-50%);border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15);background:${outOfRange?'#000':p.color};z-index:2;`;
+    scale.appendChild(dot);
+    const valLabel = document.createElement('div');
+    valLabel.style.cssText = `position:absolute;left:${valX}%;top:${laneY+13}px;font-size:10.5px;font-weight:800;color:${outOfRange?'#000':p.color};white-space:nowrap;transform:translateX(-50%);z-index:2;`;
+    valLabel.textContent = p.value.toFixed(2)+'%';
+    scale.appendChild(valLabel);
+    const label = document.createElement('div');
+    label.style.cssText = `position:absolute;left:${fwdX}%;top:${laneY-22}px;font-size:11px;font-weight:800;color:${p.color};white-space:nowrap;`;
+    label.textContent = p.label;
+    scale.appendChild(label);
+  });
+
+  const legend = document.getElementById('cgLegend');
+  legend.innerHTML = '';
+  phases.forEach(p=>{
+    const item = document.createElement('div');
+    item.style.cssText = 'display:flex;align-items:center;gap:6px;';
+    const valText = p.show ? p.value.toFixed(2)+'% (เกณฑ์ '+p.fwd.toFixed(1)+'–'+p.aft.toFixed(1)+'%)' : 'N/A';
+    item.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:${p.color};display:inline-block;"></span>${p.label}: ${valText}`;
+    legend.appendChild(item);
+  });
+
+  const devText = document.getElementById('deviationText');
+  const banner = document.getElementById('trimBanner');
+  const icon = document.getElementById('trimIcon');
+  const headline = document.getElementById('trimHeadline');
+  const detail = document.getElementById('trimDetail');
+  banner.classList.remove('balanced','moderate','high');
+
+  const bandWidth = aftLimit - fwdLimit;
+  const marginFwd = zfwCG - fwdLimit;
+  const marginAft = aftLimit - zfwCG;
+  const minMargin = Math.min(marginFwd, marginAft);
+  const marginRatio = bandWidth>0 ? minMargin/bandWidth : 0;
+  const aftPref = zfwCG > 27
+    ? '<br><span style="color:#8A4FB5;">เอนไปทาง Aft (&gt;27%) — ตรงกับที่นักบินมักเลือกเพื่อ take off ง่ายขึ้น</span>'
+    : '<br><span style="color:#8A4FB5;">ยังไม่ถึง 27% (นักบินมักเลือก &gt;27% เพื่อ take off ง่ายขึ้น หากยังมี margin เหลือ อาจพิจารณาย้ายน้ำหนักไปทาง Aft เพิ่ม)</span>';
+
+  if (zfwCG < fwdLimit){
+    devText.innerHTML = `ZFW CG อยู่<b>หน้าขอบเขตที่ certified</b> เกิน ${(fwdLimit-zfwCG).toFixed(2)} %MAC — ควรย้ายน้ำหนักไปทาง Aft/Bulk Hold`;
+    banner.classList.add('high'); icon.textContent='!';
+    headline.textContent='นอกเกณฑ์ certified (Forward)'; detail.textContent='ควรย้ายน้ำหนักไปทาง Aft/Bulk Hold เพื่อดึง CG กลับเข้าเกณฑ์';
+  } else if (zfwCG > aftLimit){
+    devText.innerHTML = `ZFW CG อยู่<b>หลังขอบเขตที่ certified</b> เกิน ${(zfwCG-aftLimit).toFixed(2)} %MAC — ควรย้ายน้ำหนักไปทาง Fwd Hold`;
+    banner.classList.add('high'); icon.textContent='!';
+    headline.textContent='นอกเกณฑ์ certified (Aft)'; detail.textContent='ควรย้ายน้ำหนักไปทาง Fwd Hold เพื่อดึง CG กลับเข้าเกณฑ์';
+  } else if (marginRatio < 0.1){
+    devText.innerHTML = `ZFW CG อยู่ในเกณฑ์ แต่ใกล้ขอบ${marginFwd<marginAft?'หน้า (Fwd)':'หลัง (Aft)'} มาก (เหลือ margin ${minMargin.toFixed(2)} %MAC)` + aftPref;
+    banner.classList.add('moderate'); icon.textContent='~';
+    headline.textContent='อยู่ในเกณฑ์ แต่ใกล้ขอบ'; detail.textContent='พิจารณาปรับสัดส่วน compartment เพื่อเพิ่ม margin';
+  } else {
+    devText.innerHTML = `ZFW CG อยู่ในเกณฑ์ certified ด้วย margin ${minMargin.toFixed(2)} %MAC (${(marginRatio*100).toFixed(0)}% ของช่วงที่ certified)` + aftPref;
+    banner.classList.add('balanced'); icon.textContent='✓';
+    headline.textContent='อยู่ในเกณฑ์ certified'; detail.textContent='ZFW CG อยู่ในขอบเขตที่ certified ด้วย margin เพียงพอ';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async ()=>{
+  await loadAllData();
+  if (Object.keys(TAIL_DATA).length === 0) return; // load failed, error already shown
+  populateTailSelect();
+  buildCpTable();
+  populateDowConfig(currentAircraft());
+  suggestSplit();
+  document.getElementById('btnSuggest').addEventListener('click', ()=>{ suggestSplit(); recalc(); });
+  document.getElementById('preferAft').addEventListener('change', ()=>{ suggestSplit(); recalc(); });
+  document.getElementById('dowConfig').addEventListener('change', recalc);
+  document.getElementById('tailSelect').addEventListener('change', ()=>{ buildCpTable(); populateDowConfig(currentAircraft()); suggestSplit(); recalc(); });
+  document.body.addEventListener('input', (e)=>{
+    if (e.target.id === 'tailSelect') return;
+    if (e.target.classList && e.target.classList.contains('cp-in')){
+      const tag = e.target.parentElement.querySelector('.cp-tag');
+      if (tag) tag.remove();
+    }
+    recalc();
+  });
+  recalc();
+});
+</script>
+</body>
+</html>
