@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ทดสอบ CORS - opscontrol360 WBdatabase</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1A1F2E;}
+  h1{font-size:20px;}
+  .url{background:#F4F6FB;padding:10px 14px;border-radius:8px;font-family:monospace;font-size:13px;word-break:break-all;margin-bottom:16px;}
+  button{background:#1E2761;color:#fff;border:none;padding:12px 22px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;}
+  button:disabled{opacity:.5;cursor:default;}
+  #result{margin-top:20px;padding:16px;border-radius:10px;font-size:14px;line-height:1.6;white-space:pre-wrap;}
+  .pending{background:#F4F6FB;color:#5C6784;}
+  .success{background:#E6F6EE;color:#1E8E5A;border:1px solid #BFE6D2;}
+  .fail{background:#FBEAEC;color:#C8102E;border:1px solid #F0C0C6;}
+  .meta{font-size:12px;color:#98A0B8;margin-top:14px;}
+</style>
+</head>
+<body>
+  <h1>ทดสอบว่า browser เรียก URL นี้ตรงๆ ได้ไหม (CORS check)</h1>
+  <div class="url">https://opscontrol360.com/api/WBdatabase</div>
+  <button id="btnTest">ทดสอบเชื่อมต่อ (Test Fetch)</button>
+  <div id="result" class="pending">ยังไม่ได้ทดสอบ — กดปุ่มด้านบนเพื่อเริ่ม</div>
+  <div class="meta">หมายเหตุ: ต้องเปิดไฟล์นี้ผ่านเบราว์เซอร์จริง (ไม่ใช่แค่ preview ในแชท) ผลลัพธ์จะต่างกันไปตามเบราว์เซอร์/เครือข่ายที่ใช้เปิด (เช่น อยู่ในวง VPN บริษัทหรือไม่) ควรทดสอบจากเครื่อง/เครือข่ายเดียวกับที่จะใช้งานเครื่องมือจริง</div>
+
+<script>
+document.getElementById('btnTest').addEventListener('click', async ()=>{
+  const btn = document.getElementById('btnTest');
+  const result = document.getElementById('result');
+  btn.disabled = true;
+  result.className = 'pending';
+  result.textContent = 'กำลังทดสอบ...';
+
+  const url = 'https://opscontrol360.com/api/WBdatabase';
+  const started = performance.now();
+  try {
+    const res = await fetch(url, { method: 'GET', mode: 'cors' });
+    const elapsed = (performance.now() - started).toFixed(0);
+    const text = await res.text();
+    result.className = 'success';
+    result.textContent =
+      '✓ เรียกสำเร็จ! CORS ไม่บล็อก\n\n' +
+      'HTTP Status: ' + res.status + ' ' + res.statusText + '\n' +
+      'เวลาที่ใช้: ' + elapsed + ' ms\n' +
+      'ขนาดข้อมูลที่ได้: ' + text.length.toLocaleString() + ' ตัวอักษร\n' +
+      'ตัวอย่างบรรทัดแรก: ' + text.split('\\n').slice(0,3).join(' | ');
+  } catch (err) {
+    result.className = 'fail';
+    result.textContent =
+      '✗ เรียกไม่สำเร็จ\n\n' +
+      'Error: ' + err.message + '\n\n' +
+      'สาเหตุที่เป็นไปได้มากที่สุด: server ไม่ได้เปิด CORS header (Access-Control-Allow-Origin) ให้เว็บอื่นเรียก\n' +
+      'ถ้าเป็นแบบนี้ ต้องขอให้ทีมที่ดูแล opscontrol360.com เพิ่ม CORS header หรือใช้วิธีอื่น (เช่น ให้ Claude ดึงข้อมูลแทนเป็นระยะๆ)';
+  }
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>
