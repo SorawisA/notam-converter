@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -157,18 +157,18 @@
 <body>
 <div id="loadingOverlay" style="position:fixed;inset:0;background:#F0F1F5;z-index:999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;">
   <div style="width:36px;height:36px;border:4px solid #DDE1EA;border-top-color:#1E2761;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
-  <div id="loadingText" style="font-size:14px;color:#5C6784;font-weight:700;">กำลังโหลดข้อมูลจาก FlySmart DB...</div>
+  <div id="loadingText" style="font-size:14px;color:#5C6784;font-weight:700;">Loading data from FlySmart DB...</div>
   <div id="loadingDetail" style="font-size:12px;color:#98A0B8;max-width:320px;text-align:center;"></div>
 </div>
 <style>@keyframes spin{to{transform:rotate(360deg);}}</style>
 <div class="wrap">
 
   <div class="formtitle">EFB WEIGHT AND BALANCE — PRE-CHECK
-    <span class="ref">อ้างอิงเลย์เอาต์จาก TAA/FOP/F/016 · เช็ค ZFW/TOW/LW CG + THS เทียบ certified จาก FlySmart DB</span>
+    <span class="ref">Based on TAA/FOP/F/016 layout · Checks ZFW/TOW/LW CG + THS against certified limits from FlySmart DB</span>
   </div>
 
   <div class="formbox">
-    <div class="fb-title">EFB Weight and Balance Form <span class="sub">PRE-CHECK (ไม่ใช่เอกสาร Official)</span></div>
+    <div class="fb-title">EFB Weight and Balance Form <span class="sub">PRE-CHECK (Not an Official Document)</span></div>
 
     <div class="hrow">
       <div class="hcell"><label>Flight No.</label><input type="text" id="flightNo" value="FD3416"></div>
@@ -182,7 +182,7 @@
       <span><label>Adult kg</label><input type="number" id="wAdult" value="74"></span>
       <span><label>Child kg</label><input type="number" id="wChild" value="35"></span>
       <span><label>Infant kg</label><input type="number" id="wInfant" value="10"></span>
-      <span style="color:var(--ink-faint);font-weight:600;text-transform:none;">(Adult 74kg ยืนยันจาก FlySmart CONFIG STD-Asia · Child/Infant เป็นค่าประมาณ รอยืนยัน)</span>
+      <span style="color:var(--ink-faint);font-weight:600;text-transform:none;">(Adult 74kg confirmed from FlySmart CONFIG STD-Asia · Child/Infant are estimates, pending confirmation)</span>
     </div>
 
     <div class="crow">
@@ -248,16 +248,16 @@
         <div class="action-row" style="justify-content:space-between;align-items:center;">
           <label style="font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;font-weight:600;">
             <input type="checkbox" id="preferAft" style="width:16px;height:16px;">
-            เอนไปทาง Aft (&gt;27% MAC) ตามที่นักบินนิยม
+            Bias toward Aft (&gt;27% MAC) per pilot preference
           </label>
-          <button class="btn secondary" id="btnSuggest">ใช้ค่าที่แนะนำ (Auto-Suggest Compartment)</button>
+          <button class="btn secondary" id="btnSuggest">Use Suggested Values (Auto-Suggest Compartment)</button>
         </div>
         <table class="cargo-table" id="cpTable">
           <thead><tr id="cpHeadRow"></tr></thead>
           <tbody><tr id="cpInputRow"></tr></tbody>
         </table>
         <div class="totalrow">
-          <div>รวมที่ใส่ Compartment แล้ว: <span id="cpSum">0</span> kg</div>
+          <div>Total assigned to compartments: <span id="cpSum">0</span> kg</div>
           <div id="cpCheck">—</div>
         </div>
       </div>
@@ -279,7 +279,7 @@
 
   <div class="trim-panel">
     <div class="formbox">
-      <div class="fb-title">Weight &amp; CG Summary <span class="sub">ประมาณจาก DOW/DOCG + Pax + Cargo + Fuel — เทียบ Certified Limit (FlySmart DB)</span></div>
+      <div class="fb-title">Weight &amp; CG Summary <span class="sub">Estimated from DOW/DOCG + Pax + Cargo + Fuel — checked against Certified Limits (FlySmart DB)</span></div>
       <table class="summary-table">
         <tr><td class="lbl">DOW / DOCG</td><td class="wt" id="sDow">—</td><td class="cg" id="sDocg">—</td></tr>
         <tr class="hl"><td class="lbl">ZFW / ZFWCG</td><td class="wt" id="sZfw">—</td><td class="cg" id="sZfwCg">—</td></tr>
@@ -301,8 +301,8 @@
         <div id="trimBanner" class="trim-banner balanced" style="margin-top:14px;">
           <div class="icon" id="trimIcon">&#10003;</div>
           <div>
-            <div class="headline" id="trimHeadline">อยู่ในเกณฑ์</div>
-            <div class="detail" id="trimDetail">ZFW CG อยู่ในขอบเขต certified</div>
+            <div class="headline" id="trimHeadline">Within Limits</div>
+            <div class="detail" id="trimDetail">ZFW CG is within the certified range</div>
           </div>
         </div>
       </div>
@@ -315,10 +315,10 @@
   </div>
 
   <div class="footnote">
-    <b>หน่วย:</b> ค่า CG ทั้งหมดเป็น <b>%MAC</b> (แปลงจาก arm ด้วย LEMAC/MAC ของเครื่องลำนั้น) ตรงกับหน่วยที่ FlySmart แสดง<br>
-    <b>Fuel arm:</b> ประมาณจาก volume ที่แปลงจาก FOB/density แล้วกระจายเข้าถังตามลำดับ OUTER → INNER → CENTER (สมมติฐานลำดับการเติม มาตรฐาน Airbus ทั่วไป) ทดสอบเทียบตัวอย่างจริง 1 ตัวอย่างได้ผลใกล้เคียง (±0.3 %MAC)<br>
-    <b>T.O. THS:</b> interpolate จากตาราง CG→มุม trim ของเครื่องลำนั้น ปัดเป็นทวีคูณ 0.5 องศา — สอบเทียบกับตัวอย่างจริงเพียง 1 ตัวอย่าง ควรหาตัวอย่างเพิ่มเพื่อยืนยัน<br>
-    <b>ข้อจำกัด:</b> เป็นเครื่องมือ pre-check/ประมาณการเท่านั้น ค่าที่ certified จริงต้องยืนยันใน FlySmart เสมอก่อนปิดเอกสาร
+    <b>Units:</b> All CG values are in <b>%MAC</b> (converted from arm using each aircraft's LEMAC/MAC), matching the units FlySmart displays<br>
+    <b>Fuel arm:</b> Estimated from volume converted from FOB/density, distributed across tanks in the order OUTER → INNER → CENTER (standard Airbus fill-order assumption). Tested against one real example with a close result (±0.3 %MAC)<br>
+    <b>T.O. THS:</b> Interpolated from each aircraft's CG→trim-angle table, shown to 1 decimal place (not rounded to 0.5°) — calibrated against only one real example so far; more examples would help confirm accuracy<br>
+    <b>Limitation:</b> This is a pre-check/estimation tool only — the certified value must always be confirmed in FlySmart before closing any paperwork
   </div>
 
 </div>
@@ -493,30 +493,33 @@ async function loadAllData(){
   const loadingText = document.getElementById('loadingText');
   const loadingDetail = document.getElementById('loadingDetail');
   try {
-    loadingText.textContent = 'กำลังโหลดข้อมูล FlySmart DB...';
+    loadingText.textContent = 'Loading data from FlySmart DB...';
     const sqlRes = await fetch(SQL_URL);
     if (!sqlRes.ok) throw new Error('SQL fetch failed: ' + sqlRes.status);
     const sqlText = await sqlRes.text();
-    loadingText.textContent = 'กำลังแปลงข้อมูล...';
-    const parsed = parseSqlIntoTailData(sqlText);
-
-    const tails = Object.keys(parsed);
-    loadingText.textContent = 'กำลังโหลด DOW/DOCG ตาม config...';
-    loadingDetail.textContent = `0 / ${tails.length} ลำ`;
-    let done = 0;
-    await Promise.all(tails.map(async (tail)=>{
-      const cfgs = await fetchDowConfigsForTail(tail);
-      if (cfgs) parsed[tail].dowConfigs = cfgs;
-      done++;
-      loadingDetail.textContent = `${done} / ${tails.length} ลำ`;
-    }));
-
-    TAIL_DATA = parsed;
+    loadingText.textContent = 'Processing data...';
+    TAIL_DATA = parseSqlIntoTailData(sqlText);
     document.getElementById('loadingOverlay').style.display = 'none';
   } catch (err) {
-    loadingText.textContent = 'โหลดข้อมูลไม่สำเร็จ';
-    loadingDetail.innerHTML = 'เกิดข้อผิดพลาด: ' + err.message + '<br>กรุณาลองรีเฟรชหน้านี้ใหม่ หรือตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+    loadingText.textContent = 'Failed to load data';
+    loadingDetail.innerHTML = 'Error: ' + err.message + '<br>Please refresh this page, or check your internet connection';
   }
+}
+
+// Fetches the DOW/DOCG-by-config data for just one tail (called lazily when the
+// user selects/changes registration, instead of upfront for all 62 — much lighter
+// load on the API, especially with many users open at once).
+async function loadDowConfigForTail(tail){
+  const ac = TAIL_DATA[tail];
+  if (!ac) return;
+  const sel = document.getElementById('dowConfig');
+  sel.innerHTML = '<option>Loading...</option>';
+  sel.disabled = true;
+  const cfgs = await fetchDowConfigsForTail(tail);
+  if (cfgs) ac.dowConfigs = cfgs;
+  // else: keep whatever SQL-fallback dowConfigs was already parsed in
+  sel.disabled = false;
+  populateDowConfig(ac);
 }
 
 const zones = ['A','B','C'];
@@ -846,7 +849,7 @@ function renderCpTags(tags){
     if (!tag) return;
     const span = document.createElement('div');
     span.className = 'cp-tag';
-    const labels = { bag:['Baggage','#2C4A9E'], cargo:['Cargo/Comail','#B7791F'], mixed:['ปนกัน (เกิน capacity)','var(--accent)'] };
+    const labels = { bag:['Baggage','#2C4A9E'], cargo:['Cargo/Comail','#B7791F'], mixed:['Mixed (over capacity)','var(--accent)'] };
     const [text, color] = labels[tag];
     span.textContent = text;
     span.style.cssText = `font-size:9.5px;font-weight:700;color:${color};margin-top:3px;`;
@@ -855,11 +858,11 @@ function renderCpTags(tags){
 }
 
 function statusChip(cg, fwd, aft){
-  if (cg < fwd || cg > aft) return {cls:'bad', label:'นอกเกณฑ์'};
+  if (cg < fwd || cg > aft) return {cls:'bad', label:'Out of Range'};
   const band = aft-fwd;
   const margin = Math.min(cg-fwd, aft-cg);
-  if (band>0 && margin/band < 0.1) return {cls:'warn', label:'ใกล้ขอบ'};
-  return {cls:'ok', label:'อยู่ในเกณฑ์'};
+  if (band>0 && margin/band < 0.1) return {cls:'warn', label:'Near Limit'};
+  return {cls:'ok', label:'Within Range'};
 }
 
 function recalc(){
@@ -886,11 +889,11 @@ function recalc(){
   const cpCheck = document.getElementById('cpCheck');
   const diff = pool - cpSum;
   if (Math.abs(diff) < 0.5){
-    cpCheck.innerHTML = '<span style="color:var(--success);font-weight:700;">ตรงกับยอดรวม Payload ✓</span>';
+    cpCheck.innerHTML = '<span style="color:var(--success);font-weight:700;">Matches total Payload ✓</span>';
   } else if (diff > 0){
-    cpCheck.innerHTML = `<span style="color:var(--accent);font-weight:700;">ยังเหลือ ${diff.toFixed(0)} kg ที่ยังไม่ได้ระบุ compartment</span>`;
+    cpCheck.innerHTML = `<span style="color:var(--accent);font-weight:700;">${diff.toFixed(0)} kg still not assigned to a compartment</span>`;
   } else {
-    cpCheck.innerHTML = `<span style="color:var(--accent);font-weight:700;">ใส่เกินยอด Payload รวมอยู่ ${Math.abs(diff).toFixed(0)} kg</span>`;
+    cpCheck.innerHTML = `<span style="color:var(--accent);font-weight:700;">Exceeds total Payload by ${Math.abs(diff).toFixed(0)} kg</span>`;
   }
 
   const dowSel = currentDow(ac);
@@ -949,7 +952,7 @@ function recalc(){
   document.getElementById('sTowCg').textContent = towOverflow ? 'N/A' : towCG.toFixed(2)+' %MAC';
   document.getElementById('sLw').textContent = lw.toLocaleString(undefined,{maximumFractionDigits:0})+' kg';
   document.getElementById('sLwCg').textContent = lwOverflow ? 'N/A' : lwCG.toFixed(2)+' %MAC';
-  document.getElementById('sThs').textContent = towOverflow ? 'N/A (ดูคำเตือนด้านล่าง)' : thsDisplay+'° '+thsDir+' (TOCG '+towCG.toFixed(1)+'%)';
+  document.getElementById('sThs').textContent = towOverflow ? 'N/A (see warning below)' : thsDisplay+'° '+thsDir+' (TOCG '+towCG.toFixed(1)+'%)';
   document.getElementById('sUnderload').textContent = underload.toLocaleString(undefined,{maximumFractionDigits:0})+' kg — LIMITED BY '+limitedBy;
 
   document.getElementById('sMzfwActual').textContent = 'Actual '+zfw.toLocaleString(undefined,{maximumFractionDigits:0})+' kg';
@@ -975,25 +978,25 @@ function recalc(){
   const fuelWarnDiv = document.getElementById('fuelOverflowWarn');
   if (towOverflow || lwOverflow){
     const short = Math.max(fuelAtTow.overflowKg, fuelAtLw.overflowKg);
-    fuelWarnDiv.innerHTML = `<div class="overflow-warn">น้ำหนักเชื้อเพลิงเกิน capacity ที่มีข้อมูล arm รองรับอยู่ ~${short.toFixed(0)} kg — TOW/LW CG และ T.O.THS ไม่แสดงผล (ไม่แม่นยำพอ) กรุณาตรวจสอบใน FlySmart โดยตรงสำหรับเที่ยวบินนี้</div>`;
+    fuelWarnDiv.innerHTML = `<div class="overflow-warn">Fuel weight exceeds the capacity covered by available arm data by ~${short.toFixed(0)} kg — TOW/LW CG and T.O.THS are not shown (not accurate enough). Please check FlySmart directly for this flight</div>`;
   } else {
     fuelWarnDiv.innerHTML = '';
   }
 
   if (towOverflow){
-    document.getElementById('towDetail').textContent = 'ไม่แสดงผล — ข้อมูล fuel tank ไม่ครอบคลุมน้ำหนักเชื้อเพลิงนี้';
+    document.getElementById('towDetail').textContent = 'Not shown — fuel tank data does not cover this fuel weight';
     document.getElementById('towChip').innerHTML = `<span class="status-chip warn">N/A</span>`;
   } else {
     const towStatus = statusChip(towCG, towFwd, towAft);
-    document.getElementById('towDetail').textContent = `${towCG.toFixed(2)}% (เกณฑ์ ${towFwd.toFixed(2)}–${towAft.toFixed(2)}%) · น้ำหนัก ${tow.toFixed(0)} kg`;
+    document.getElementById('towDetail').textContent = `${towCG.toFixed(2)}% (limit ${towFwd.toFixed(2)}–${towAft.toFixed(2)}%) · weight ${tow.toFixed(0)} kg`;
     document.getElementById('towChip').innerHTML = `<span class="status-chip ${towStatus.cls}">${towStatus.label}</span>`;
   }
   if (lwOverflow){
-    document.getElementById('lwDetail').textContent = 'ไม่แสดงผล — ข้อมูล fuel tank ไม่ครอบคลุมน้ำหนักเชื้อเพลิงนี้';
+    document.getElementById('lwDetail').textContent = 'Not shown — fuel tank data does not cover this fuel weight';
     document.getElementById('lwChip').innerHTML = `<span class="status-chip warn">N/A</span>`;
   } else {
     const lwStatus = statusChip(lwCG, lwFwd, lwAft);
-    document.getElementById('lwDetail').textContent = `${lwCG.toFixed(2)}% (เกณฑ์ ${lwFwd.toFixed(2)}–${lwAft.toFixed(2)}%) · น้ำหนัก ${lw.toFixed(0)} kg`;
+    document.getElementById('lwDetail').textContent = `${lwCG.toFixed(2)}% (limit ${lwFwd.toFixed(2)}–${lwAft.toFixed(2)}%) · weight ${lw.toFixed(0)} kg`;
     document.getElementById('lwChip').innerHTML = `<span class="status-chip ${lwStatus.cls}">${lwStatus.label}</span>`;
   }
 
@@ -1060,7 +1063,7 @@ function recalc(){
   phases.forEach(p=>{
     const item = document.createElement('div');
     item.style.cssText = 'display:flex;align-items:center;gap:6px;';
-    const valText = p.show ? p.value.toFixed(2)+'% (เกณฑ์ '+p.fwd.toFixed(1)+'–'+p.aft.toFixed(1)+'%)' : 'N/A';
+    const valText = p.show ? p.value.toFixed(2)+'% (limit '+p.fwd.toFixed(1)+'–'+p.aft.toFixed(1)+'%)' : 'N/A';
     item.innerHTML = `<span style="width:10px;height:10px;border-radius:50%;background:${p.color};display:inline-block;"></span>${p.label}: ${valText}`;
     legend.appendChild(item);
   });
@@ -1078,25 +1081,25 @@ function recalc(){
   const minMargin = Math.min(marginFwd, marginAft);
   const marginRatio = bandWidth>0 ? minMargin/bandWidth : 0;
   const aftPref = zfwCG > 27
-    ? '<br><span style="color:#8A4FB5;">เอนไปทาง Aft (&gt;27%) — ตรงกับที่นักบินมักเลือกเพื่อ take off ง่ายขึ้น</span>'
-    : '<br><span style="color:#8A4FB5;">ยังไม่ถึง 27% (นักบินมักเลือก &gt;27% เพื่อ take off ง่ายขึ้น หากยังมี margin เหลือ อาจพิจารณาย้ายน้ำหนักไปทาง Aft เพิ่ม)</span>';
+    ? '<br><span style="color:#8A4FB5;">Biased toward Aft (&gt;27%) — matches what pilots often prefer for an easier takeoff</span>'
+    : '<br><span style="color:#8A4FB5;">Not yet past 27% (pilots often prefer &gt;27% for an easier takeoff — if margin allows, consider shifting more weight aft)</span>';
 
   if (zfwCG < fwdLimit){
-    devText.innerHTML = `ZFW CG อยู่<b>หน้าขอบเขตที่ certified</b> เกิน ${(fwdLimit-zfwCG).toFixed(2)} %MAC — ควรย้ายน้ำหนักไปทาง Aft/Bulk Hold`;
+    devText.innerHTML = `ZFW CG is <b>forward of the certified range</b> by ${(fwdLimit-zfwCG).toFixed(2)} %MAC — weight should be shifted toward Aft/Bulk Hold`;
     banner.classList.add('high'); icon.textContent='!';
-    headline.textContent='นอกเกณฑ์ certified (Forward)'; detail.textContent='ควรย้ายน้ำหนักไปทาง Aft/Bulk Hold เพื่อดึง CG กลับเข้าเกณฑ์';
+    headline.textContent='Out of certified range (Forward)'; detail.textContent='Weight should be shifted toward Aft/Bulk Hold to bring CG back within range';
   } else if (zfwCG > aftLimit){
-    devText.innerHTML = `ZFW CG อยู่<b>หลังขอบเขตที่ certified</b> เกิน ${(zfwCG-aftLimit).toFixed(2)} %MAC — ควรย้ายน้ำหนักไปทาง Fwd Hold`;
+    devText.innerHTML = `ZFW CG is <b>aft of the certified range</b> by ${(zfwCG-aftLimit).toFixed(2)} %MAC — weight should be shifted toward the Fwd Hold`;
     banner.classList.add('high'); icon.textContent='!';
-    headline.textContent='นอกเกณฑ์ certified (Aft)'; detail.textContent='ควรย้ายน้ำหนักไปทาง Fwd Hold เพื่อดึง CG กลับเข้าเกณฑ์';
+    headline.textContent='Out of certified range (Aft)'; detail.textContent='Weight should be shifted toward the Fwd Hold to bring CG back within range';
   } else if (marginRatio < 0.1){
-    devText.innerHTML = `ZFW CG อยู่ในเกณฑ์ แต่ใกล้ขอบ${marginFwd<marginAft?'หน้า (Fwd)':'หลัง (Aft)'} มาก (เหลือ margin ${minMargin.toFixed(2)} %MAC)` + aftPref;
+    devText.innerHTML = `ZFW CG is within range but close to the ${marginFwd<marginAft?'forward (Fwd)':'aft (Aft)'} edge (margin ${minMargin.toFixed(2)} %MAC remaining)` + aftPref;
     banner.classList.add('moderate'); icon.textContent='~';
-    headline.textContent='อยู่ในเกณฑ์ แต่ใกล้ขอบ'; detail.textContent='พิจารณาปรับสัดส่วน compartment เพื่อเพิ่ม margin';
+    headline.textContent='Within range, but close to the edge'; detail.textContent='Consider adjusting the compartment split to increase margin';
   } else {
-    devText.innerHTML = `ZFW CG อยู่ในเกณฑ์ certified ด้วย margin ${minMargin.toFixed(2)} %MAC (${(marginRatio*100).toFixed(0)}% ของช่วงที่ certified)` + aftPref;
+    devText.innerHTML = `ZFW CG is within the certified range with a margin of ${minMargin.toFixed(2)} %MAC (${(marginRatio*100).toFixed(0)}% of the certified band)` + aftPref;
     banner.classList.add('balanced'); icon.textContent='✓';
-    headline.textContent='อยู่ในเกณฑ์ certified'; detail.textContent='ZFW CG อยู่ในขอบเขตที่ certified ด้วย margin เพียงพอ';
+    headline.textContent='Within certified range'; detail.textContent='ZFW CG is within the certified range with adequate margin';
   }
 }
 
@@ -1105,12 +1108,17 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   if (Object.keys(TAIL_DATA).length === 0) return; // load failed, error already shown
   populateTailSelect();
   buildCpTable();
-  populateDowConfig(currentAircraft());
+  await loadDowConfigForTail(document.getElementById('tailSelect').value);
   suggestSplit();
   document.getElementById('btnSuggest').addEventListener('click', ()=>{ suggestSplit(); recalc(); });
   document.getElementById('preferAft').addEventListener('change', ()=>{ suggestSplit(); recalc(); });
   document.getElementById('dowConfig').addEventListener('change', recalc);
-  document.getElementById('tailSelect').addEventListener('change', ()=>{ buildCpTable(); populateDowConfig(currentAircraft()); suggestSplit(); recalc(); });
+  document.getElementById('tailSelect').addEventListener('change', async (e)=>{
+    buildCpTable();
+    await loadDowConfigForTail(e.target.value);
+    suggestSplit();
+    recalc();
+  });
   document.body.addEventListener('input', (e)=>{
     if (e.target.id === 'tailSelect') return;
     if (e.target.classList && e.target.classList.contains('cp-in')){
