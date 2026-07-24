@@ -771,55 +771,63 @@ function suggestSplit(){
   // possible (easier to offload cargo at a stop without digging through
   // passenger bags), but hitting the target CG always takes priority —
   // splitting across a couple of partially-filled holds is normal practice
-  // whenever the load isn't naturally centered.
+  // whenever the load isn't naturally centered. Whichever pool is HEAVIER
+  // gets first pick of compartments — a small Comail/DG amount must not be
+  // allowed to claim the best-positioned hold away from a much bigger
+  // Baggage load (or vice versa), since that would swing CG far more than
+  // necessary.
   const bagPool = getInput(document.getElementById('bagwt'));
   const cargoPool = getInput(document.getElementById('cargowt')) + getInput(document.getElementById('comailwt')) +
                     getInput(document.getElementById('dgwt')) + getInput(document.getElementById('cbwt'));
 
-  let cargoAlloc = {};
-  let cargoUsedCpts = [];
-  if (cargoPool > 1e-9){
-    const fittingSingle = nonBulk.filter(h=>h.max >= cargoPool)
-      .sort((a,b)=>Math.abs(a.harm-targetAvgHarm)-Math.abs(b.harm-targetAvgHarm));
-    if (fittingSingle.length > 0){
-      cargoAlloc[fittingSingle[0].cpt] = cargoPool;
-      cargoUsedCpts = [fittingSingle[0].cpt];
-    } else {
-      const r = allocateToTarget(nonBulk, cargoPool, targetAvgHarm);
-      cargoAlloc = r.alloc;
-      cargoUsedCpts = Object.keys(r.alloc);
-      if (r.overflow > 1e-6 && bulk.length > 0){
-        const rb = allocateToTarget(bulk, r.overflow, targetAvgHarm);
-        cargoAlloc = { ...cargoAlloc, ...rb.alloc };
-        cargoUsedCpts = [...cargoUsedCpts, ...Object.keys(rb.alloc)];
+  function allocateGroup(groupPool, availableHolds, availableBulk){
+    let alloc = {}, usedCpts = [];
+    if (groupPool > 1e-9){
+      const fittingSingle = availableHolds.filter(h=>h.max >= groupPool)
+        .sort((a,b)=>Math.abs(a.harm-targetAvgHarm)-Math.abs(b.harm-targetAvgHarm));
+      if (fittingSingle.length > 0){
+        alloc[fittingSingle[0].cpt] = groupPool;
+        usedCpts = [fittingSingle[0].cpt];
+      } else {
+        const r = allocateToTarget(availableHolds, groupPool, targetAvgHarm);
+        alloc = r.alloc;
+        usedCpts = Object.keys(r.alloc);
+        if (r.overflow > 1e-6 && availableBulk.length > 0){
+          const rb = allocateToTarget(availableBulk, r.overflow, targetAvgHarm);
+          alloc = { ...alloc, ...rb.alloc };
+          usedCpts = [...usedCpts, ...Object.keys(rb.alloc)];
+        }
       }
     }
+    return { alloc, usedCpts };
   }
 
-  const remainingHolds = holdEntries.filter(h=>!cargoUsedCpts.includes(h.cpt));
+  const bagIsLarger = bagPool >= cargoPool;
+  const firstPool = bagIsLarger ? bagPool : cargoPool;
+  const secondPool = bagIsLarger ? cargoPool : bagPool;
+
+  const first = allocateGroup(firstPool, nonBulk, bulk);
+
+  const remainingHolds = holdEntries.filter(h=>!first.usedCpts.includes(h.cpt));
   const remainingNonBulk = remainingHolds.filter(h=>h.type !== 'Bulk Hold');
   const remainingBulk = remainingHolds.filter(h=>h.type === 'Bulk Hold');
 
-  let bagAlloc = {};
-  if (bagPool > 1e-9){
-    let r = allocateToTarget(remainingNonBulk, bagPool, targetAvgHarm);
-    bagAlloc = r.alloc;
-    let overflow = r.overflow;
-    if (overflow > 1e-6 && remainingBulk.length > 0){
-      const rb = allocateToTarget(remainingBulk, overflow, targetAvgHarm);
-      bagAlloc = { ...bagAlloc, ...rb.alloc };
-      overflow = rb.overflow;
-    }
-    if (overflow > 1e-6 && cargoUsedCpts.length > 0){
-      const spareInCargoHolds = cargoUsedCpts.map(cpt=>{
-        const h = holdEntries.find(x=>x.cpt===cpt);
-        const used = cargoAlloc[cpt] || 0;
-        return { ...h, max: h.max - used };
-      }).filter(h=>h.max > 1e-6);
-      const rm = allocateToTarget(spareInCargoHolds, overflow, targetAvgHarm);
-      for (const cpt in rm.alloc){ bagAlloc[cpt] = (bagAlloc[cpt]||0) + rm.alloc[cpt]; }
-    }
+  const second = allocateGroup(secondPool, remainingNonBulk, remainingBulk);
+  let secondAlloc = second.alloc;
+  const secondUsed = second.usedCpts.reduce((s,cpt)=>s+(secondAlloc[cpt]||0),0);
+  let secondOverflow = secondPool - secondUsed;
+  if (secondOverflow > 1e-6 && first.usedCpts.length > 0){
+    const spareInFirstHolds = first.usedCpts.map(cpt=>{
+      const h = holdEntries.find(x=>x.cpt===cpt);
+      const used = first.alloc[cpt] || 0;
+      return { ...h, max: h.max - used };
+    }).filter(h=>h.max > 1e-6);
+    const rm = allocateToTarget(spareInFirstHolds, secondOverflow, targetAvgHarm);
+    for (const cpt in rm.alloc){ secondAlloc[cpt] = (secondAlloc[cpt]||0) + rm.alloc[cpt]; }
   }
+
+  const cargoAlloc = bagIsLarger ? secondAlloc : first.alloc;
+  const bagAlloc = bagIsLarger ? first.alloc : secondAlloc;
 
   const totalAlloc = {};
   for (const cpt in cargoAlloc) totalAlloc[cpt] = (totalAlloc[cpt]||0) + cargoAlloc[cpt];
