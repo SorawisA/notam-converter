@@ -802,7 +802,18 @@ function suggestSplit(){
     return { alloc, usedCpts };
   }
 
-  const bagIsLarger = bagPool >= cargoPool;
+  // Priority: a pool that fits entirely within ONE compartment gets first pick
+  // (claims the best-positioned hold outright) — a pool too big for any single
+  // hold has to fragment across multiple holds anyway, so it goes second and
+  // uses whatever's left. Within the same tier, the heavier pool goes first.
+  const bagSingleFits = nonBulk.some(h=>h.max >= bagPool);
+  const cargoSingleFits = nonBulk.some(h=>h.max >= cargoPool);
+  let bagIsLarger;
+  if (bagSingleFits !== cargoSingleFits){
+    bagIsLarger = bagSingleFits; // whichever one fits a single hold wins the tier
+  } else {
+    bagIsLarger = bagPool >= cargoPool; // same tier: heavier goes first
+  }
   const firstPool = bagIsLarger ? bagPool : cargoPool;
   const secondPool = bagIsLarger ? cargoPool : bagPool;
 
